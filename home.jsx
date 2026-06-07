@@ -105,58 +105,6 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
           </div>
         </div>
 
-        {/* Region strip: stats + cities served */}
-        <div style={{
-          marginTop: 40, padding: "24px 28px",
-          border: "1px solid var(--line)", borderRadius: "var(--radius-lg)",
-          background: "var(--bg)",
-          display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 32, alignItems: "start",
-        }}>
-          <div style={{ display: "flex", gap: 36, flexShrink: 0 }}>
-            {[
-              { v: visible.length, l: "imóveis ativos" },
-              { v: "10", l: "cidades atendidas" },
-              { v: "100%", l: "sem comissão" },
-            ].map((s) => (
-              <div key={s.l}>
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 600, fontSize: 26, letterSpacing: "-0.02em", lineHeight: 1 }}>
-                  {s.v}
-                </div>
-                <div className="mono muted" style={{ marginTop: 6 }}>{s.l}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ borderLeft: "1px solid var(--line)", paddingLeft: 32, minWidth: 0 }}>
-            <span className="mono muted" style={{ display: "block", marginBottom: 10 }}>● Atendemos Alegre e região do Caparaó</span>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-              {CITIES.map((c) => {
-                const name = c.split(",")[0];
-                const active = city === c;
-                return (
-                  <button
-                    key={c}
-                    onClick={() => setCity(active ? "" : c)}
-                    style={{
-                      cursor: "pointer", border: "none",
-                      background: active ? "var(--ink)" : "var(--bg-2)",
-                      color: active ? "var(--bg)" : "var(--ink-2)",
-                      fontSize: 12, fontWeight: 500,
-                      borderRadius: 999, padding: "5px 11px",
-                      whiteSpace: "nowrap", lineHeight: 1.4,
-                      transition: "background 120ms, color 120ms",
-                    }}
-                  >
-                    {name}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
-            <span className="mono" style={{ color: "var(--accent)" }}>Caparaó · ES</span>
-            <span className="muted" style={{ fontSize: 11 }}>raio de ~60 km de Alegre</span>
-          </div>
-        </div>
       </section>
 
       {/* Search bar */}

@@ -3,16 +3,7 @@ import React from "react";
 // ─── Entidades normalizadas (modelo ER) ───────────────────────────────────────
 
 const CIDADES = [
-  { idCidade: "c-01", nome: "Alegre",                    estado: "ES" },
-  { idCidade: "c-02", nome: "Guaçuí",                    estado: "ES" },
-  { idCidade: "c-03", nome: "Jerônimo Monteiro",          estado: "ES" },
-  { idCidade: "c-04", nome: "Cachoeiro de Itapemirim",    estado: "ES" },
-  { idCidade: "c-05", nome: "Muniz Freire",               estado: "ES" },
-  { idCidade: "c-06", nome: "Ibitirama",                  estado: "ES" },
-  { idCidade: "c-07", nome: "Iúna",                       estado: "ES" },
-  { idCidade: "c-08", nome: "São José do Calçado",        estado: "ES" },
-  { idCidade: "c-09", nome: "Bom Jesus do Norte",         estado: "ES" },
-  { idCidade: "c-10", nome: "Mimoso do Sul",              estado: "ES" },
+  { idCidade: "c-01", nome: "Alegre", estado: "ES" },
 ];
 
 const TIPOS = [
@@ -88,15 +79,10 @@ const ADMS = [
 // idEndereco | rua | numero | bairro | CEP | idCidade
 
 const ENDERECOS = [
-  { idEndereco: "e-01", rua: "Rua XV de Novembro",   numero: "120", bairro: "Centro",         CEP: "29500-000", idCidade: "c-01" },
-  { idEndereco: "e-02", rua: "Rua São Roque",        numero: "45",  bairro: "São Roque",       CEP: "29560-000", idCidade: "c-02" },
-  { idEndereco: "e-03", rua: "Rua das Acácias",      numero: "88",  bairro: "Vila do Sul",     CEP: "29500-100", idCidade: "c-01" },
-  { idEndereco: "e-04", rua: "Av. Independência",    numero: "310", bairro: "Independência",   CEP: "29300-000", idCidade: "c-04" },
-  { idEndereco: "e-05", rua: "Rua do Café",          numero: "22",  bairro: "Café",            CEP: "29500-200", idCidade: "c-01" },
-  { idEndereco: "e-06", rua: "Estrada da Cachoeira", numero: "s/n", bairro: "Zona rural",      CEP: "29590-000", idCidade: "c-05" },
-  { idEndereco: "e-07", rua: "Rua Serra Verde",      numero: "15",  bairro: "Centro",          CEP: "29545-000", idCidade: "c-06" },
-  { idEndereco: "e-08", rua: "Av. Principal",        numero: "200", bairro: "Centro",          CEP: "29480-000", idCidade: "c-03" },
-  { idEndereco: "e-09", rua: "Rua Guararema",        numero: "67",  bairro: "Guararema",       CEP: "29500-300", idCidade: "c-01" },
+  { idEndereco: "e-01", rua: "Rua XV de Novembro", numero: "120", bairro: "Centro",     CEP: "29500-000", idCidade: "c-01" },
+  { idEndereco: "e-03", rua: "Rua das Acácias",    numero: "88",  bairro: "Vila do Sul", CEP: "29500-100", idCidade: "c-01" },
+  { idEndereco: "e-05", rua: "Rua do Café",        numero: "22",  bairro: "Café",        CEP: "29500-200", idCidade: "c-01" },
+  { idEndereco: "e-09", rua: "Rua Guararema",      numero: "67",  bairro: "Guararema",   CEP: "29500-300", idCidade: "c-01" },
 ];
 
 // ─── IMÓVEL ───────────────────────────────────────────────────────────────────
@@ -119,20 +105,6 @@ const IMOVEIS = [
     idTipo:      "t-01",
   },
   {
-    idImovel:   "p-002",
-    titulo:     "Casa com quintal em Guaçuí",
-    descricao:  "Casa térrea em rua tranquila, com quintal arborizado e churrasqueira. Aceita pets de pequeno e médio porte. A 5 minutos do centro de Guaçuí.",
-    desc:       "3 quartos, quintal, aceita pets",
-    preco:      1850,
-    quartos:    3,
-    banheiros:  2,
-    area:       142,
-    status:     "active",
-    idLocatario: "lo-02",
-    idEndereco:  "e-02",
-    idTipo:      "t-02",
-  },
-  {
     idImovel:   "p-003",
     titulo:     "Kitnet mobiliada perto da UFES",
     descricao:  "Kitnet funcional, com cama box, frigobar e cozinha equipada. A 8 minutos a pé do campus da UFES-CCA. Ideal para estudantes.",
@@ -147,20 +119,6 @@ const IMOVEIS = [
     idTipo:      "t-03",
   },
   {
-    idImovel:   "p-004",
-    titulo:     "Sobrado em Cachoeiro de Itapemirim",
-    descricao:  "Sobrado em bairro residencial, com 3 quartos sendo 1 suíte, quintal nos fundos e garagem para 2 carros. Próximo ao Shopping Cachoeiro.",
-    desc:       "3 quartos, suíte, garagem dupla",
-    preco:      3200,
-    quartos:    3,
-    banheiros:  3,
-    area:       180,
-    status:     "active",
-    idLocatario: "lo-04",
-    idEndereco:  "e-04",
-    idTipo:      "t-04",
-  },
-  {
     idImovel:   "p-005",
     titulo:     "Apartamento no Café, Alegre",
     descricao:  "Edifício de baixa vertical, em rua tranquila do bairro Café. Apartamento entregue mobiliado, com janela ampla e ventilação cruzada.",
@@ -172,48 +130,6 @@ const IMOVEIS = [
     status:     "active",
     idLocatario: "lo-05",
     idEndereco:  "e-05",
-    idTipo:      "t-01",
-  },
-  {
-    idImovel:   "p-006",
-    titulo:     "Sítio com cachoeira em Muniz Freire",
-    descricao:  "Sítio com 2 quartos, varanda com rede e acesso a uma pequena cachoeira no terreno. A 20 minutos do centro de Muniz Freire.",
-    desc:       "Cachoeira no terreno, varanda",
-    preco:      2400,
-    quartos:    2,
-    banheiros:  2,
-    area:       130,
-    status:     "draft",
-    idLocatario: "lo-06",
-    idEndereco:  "e-06",
-    idTipo:      "t-05",
-  },
-  {
-    idImovel:   "p-007",
-    titulo:     "Casa de campo em Ibitirama",
-    descricao:  "Casinha aconchegante no centro de Ibitirama, com vista para a serra. Próximo à entrada do Parque Nacional do Caparaó.",
-    desc:       "Vista da serra, perto do Caparaó",
-    preco:      1600,
-    quartos:    2,
-    banheiros:  1,
-    area:       90,
-    status:     "active",
-    idLocatario: "lo-01",
-    idEndereco:  "e-07",
-    idTipo:      "t-02",
-  },
-  {
-    idImovel:   "p-008",
-    titulo:     "Apartamento em Jerônimo Monteiro",
-    descricao:  "Apartamento em prédio de 4 andares, no centro de Jerônimo Monteiro. A 15 minutos de Alegre. Vaga de garagem coberta.",
-    desc:       "2 quartos, garagem, central",
-    preco:      1250,
-    quartos:    2,
-    banheiros:  1,
-    area:       70,
-    status:     "active",
-    idLocatario: "lo-07",
-    idEndereco:  "e-08",
     idTipo:      "t-01",
   },
   {
@@ -243,51 +159,18 @@ const FOTOS = [
   { idFoto: "f-001-4", idImovel: "p-001", legenda: "Banheiro",           ordem: 4 },
   { idFoto: "f-001-5", idImovel: "p-001", legenda: "Varanda",            ordem: 5 },
   { idFoto: "f-001-6", idImovel: "p-001", legenda: "Fachada",            ordem: 6 },
-  // p-002
-  { idFoto: "f-002-1", idImovel: "p-002", legenda: "Fachada",            ordem: 1 },
-  { idFoto: "f-002-2", idImovel: "p-002", legenda: "Sala ampla",         ordem: 2 },
-  { idFoto: "f-002-3", idImovel: "p-002", legenda: "Cozinha",            ordem: 3 },
-  { idFoto: "f-002-4", idImovel: "p-002", legenda: "Quarto 1",           ordem: 4 },
-  { idFoto: "f-002-5", idImovel: "p-002", legenda: "Quintal",            ordem: 5 },
-  { idFoto: "f-002-6", idImovel: "p-002", legenda: "Churrasqueira",      ordem: 6 },
   // p-003
   { idFoto: "f-003-1", idImovel: "p-003", legenda: "Vista do quarto",    ordem: 1 },
   { idFoto: "f-003-2", idImovel: "p-003", legenda: "Kitchenette",        ordem: 2 },
   { idFoto: "f-003-3", idImovel: "p-003", legenda: "Banheiro",           ordem: 3 },
   { idFoto: "f-003-4", idImovel: "p-003", legenda: "Hall",               ordem: 4 },
   { idFoto: "f-003-5", idImovel: "p-003", legenda: "Vista da janela",    ordem: 5 },
-  // p-004
-  { idFoto: "f-004-1", idImovel: "p-004", legenda: "Fachada",            ordem: 1 },
-  { idFoto: "f-004-2", idImovel: "p-004", legenda: "Sala dois ambientes",ordem: 2 },
-  { idFoto: "f-004-3", idImovel: "p-004", legenda: "Cozinha planejada",  ordem: 3 },
-  { idFoto: "f-004-4", idImovel: "p-004", legenda: "Suíte master",       ordem: 4 },
-  { idFoto: "f-004-5", idImovel: "p-004", legenda: "Quintal",            ordem: 5 },
-  { idFoto: "f-004-6", idImovel: "p-004", legenda: "Garagem",            ordem: 6 },
   // p-005
   { idFoto: "f-005-1", idImovel: "p-005", legenda: "Living",             ordem: 1 },
   { idFoto: "f-005-2", idImovel: "p-005", legenda: "Cozinha",            ordem: 2 },
   { idFoto: "f-005-3", idImovel: "p-005", legenda: "Quarto",             ordem: 3 },
   { idFoto: "f-005-4", idImovel: "p-005", legenda: "Banheiro",           ordem: 4 },
   { idFoto: "f-005-5", idImovel: "p-005", legenda: "Área comum",         ordem: 5 },
-  // p-006
-  { idFoto: "f-006-1", idImovel: "p-006", legenda: "Fachada",            ordem: 1 },
-  { idFoto: "f-006-2", idImovel: "p-006", legenda: "Sala com lareira",   ordem: 2 },
-  { idFoto: "f-006-3", idImovel: "p-006", legenda: "Cozinha rústica",    ordem: 3 },
-  { idFoto: "f-006-4", idImovel: "p-006", legenda: "Quarto principal",   ordem: 4 },
-  { idFoto: "f-006-5", idImovel: "p-006", legenda: "Varanda",            ordem: 5 },
-  { idFoto: "f-006-6", idImovel: "p-006", legenda: "Cachoeira",          ordem: 6 },
-  // p-007
-  { idFoto: "f-007-1", idImovel: "p-007", legenda: "Fachada",            ordem: 1 },
-  { idFoto: "f-007-2", idImovel: "p-007", legenda: "Sala",               ordem: 2 },
-  { idFoto: "f-007-3", idImovel: "p-007", legenda: "Cozinha",            ordem: 3 },
-  { idFoto: "f-007-4", idImovel: "p-007", legenda: "Quarto",             ordem: 4 },
-  { idFoto: "f-007-5", idImovel: "p-007", legenda: "Quintal",            ordem: 5 },
-  // p-008
-  { idFoto: "f-008-1", idImovel: "p-008", legenda: "Sala",               ordem: 1 },
-  { idFoto: "f-008-2", idImovel: "p-008", legenda: "Cozinha",            ordem: 2 },
-  { idFoto: "f-008-3", idImovel: "p-008", legenda: "Quarto principal",   ordem: 3 },
-  { idFoto: "f-008-4", idImovel: "p-008", legenda: "Varanda",            ordem: 4 },
-  { idFoto: "f-008-5", idImovel: "p-008", legenda: "Fachada",            ordem: 5 },
   // p-009
   { idFoto: "f-009-1", idImovel: "p-009", legenda: "Espaço único",       ordem: 1 },
   { idFoto: "f-009-2", idImovel: "p-009", legenda: "Kitchenette",        ordem: 2 },
@@ -303,41 +186,16 @@ const IMOVEL_COMODIDADE = [
   { idImovel: "p-001", idComodidade: "cm-02" },
   { idImovel: "p-001", idComodidade: "cm-03" },
   { idImovel: "p-001", idComodidade: "cm-10" },
-  // p-002
-  { idImovel: "p-002", idComodidade: "cm-02" },
-  { idImovel: "p-002", idComodidade: "cm-05" },
-  { idImovel: "p-002", idComodidade: "cm-09" },
-  { idImovel: "p-002", idComodidade: "cm-04" },
   // p-003
   { idImovel: "p-003", idComodidade: "cm-01" },
   { idImovel: "p-003", idComodidade: "cm-03" },
   { idImovel: "p-003", idComodidade: "cm-06" },
   { idImovel: "p-003", idComodidade: "cm-10" },
-  // p-004
-  { idImovel: "p-004", idComodidade: "cm-02" },
-  { idImovel: "p-004", idComodidade: "cm-04" },
-  { idImovel: "p-004", idComodidade: "cm-09" },
-  { idImovel: "p-004", idComodidade: "cm-07" },
   // p-005
   { idImovel: "p-005", idComodidade: "cm-01" },
   { idImovel: "p-005", idComodidade: "cm-03" },
   { idImovel: "p-005", idComodidade: "cm-08" },
   { idImovel: "p-005", idComodidade: "cm-10" },
-  // p-006
-  { idImovel: "p-006", idComodidade: "cm-02" },
-  { idImovel: "p-006", idComodidade: "cm-05" },
-  { idImovel: "p-006", idComodidade: "cm-09" },
-  { idImovel: "p-006", idComodidade: "cm-04" },
-  // p-007
-  { idImovel: "p-007", idComodidade: "cm-01" },
-  { idImovel: "p-007", idComodidade: "cm-03" },
-  { idImovel: "p-007", idComodidade: "cm-05" },
-  { idImovel: "p-007", idComodidade: "cm-04" },
-  // p-008
-  { idImovel: "p-008", idComodidade: "cm-02" },
-  { idImovel: "p-008", idComodidade: "cm-08" },
-  { idImovel: "p-008", idComodidade: "cm-07" },
-  { idImovel: "p-008", idComodidade: "cm-06" },
   // p-009
   { idImovel: "p-009", idComodidade: "cm-01" },
   { idImovel: "p-009", idComodidade: "cm-03" },
@@ -358,10 +216,7 @@ const AVALIACOES = [
 // ─── DENÚNCIA ─────────────────────────────────────────────────────────────────
 // idDenuncia | idPessoa (quem denuncia) | idImovel | descricao | data | status
 
-const DENUNCIAS = [
-  { idDenuncia: "d-01", idPessoa: "pe-08", idImovel: "p-004", descricao: "Fotos não correspondem ao imóvel real — área menor do que anunciado.", data: "2025-02-14", status: "pendente"  },
-  { idDenuncia: "d-02", idPessoa: "pe-09", idImovel: "p-006", descricao: "Imóvel anunciado como disponível mas locador não responde há semanas.", data: "2025-03-01", status: "resolvida" },
-];
+const DENUNCIAS = [];
 
 // ─── Views derivadas (compatibilidade com o restante do app) ──────────────────
 
