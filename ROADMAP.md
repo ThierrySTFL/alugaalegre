@@ -6,18 +6,21 @@
 |---|---|---|
 | Banco | Postgres no **Supabase** | Hospedado, grátis pra começar, já temos o `.sql` pronto |
 | Fotos | **Supabase Storage** | Mesmo serviço, upload direto do front, URL pública |
-| Login | **Google OAuth via Supabase Auth** | Fluxo pronto, sem implementar OAuth na mão |
-| Backend | **FastAPI + SQLAlchemy** | API REST, valida o JWT do Supabase |
+| Login | **E-mail + senha, com hash no backend** | Mais simples de implementar e de debugar que OAuth |
+| Backend | **FastAPI + SQLAlchemy** | API REST, cuida do cadastro/login e emite o próprio JWT |
 | Front | React (o que já existe) | Trocar dados mock por chamadas à API |
 
 **Como as peças se conectam:**
 
 ```
-Front (React) ──login──▶ Supabase Auth (Google) ──▶ recebe JWT
+Front (React) ──login (email/senha)──▶ FastAPI ──bcrypt + JWT──▶ front guarda o token
 Front (React) ──fotos──▶ Supabase Storage
 Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (Supabase)
-                           └─ valida o JWT em cada request
+                           └─ valida o JWT (emitido pelo próprio FastAPI) em cada request
 ```
+
+> O Supabase entra só como Postgres hospedado + Storage de fotos — a
+> autenticação é toda nossa, não usa o Supabase Auth.
 
 > ⚠️ O arquivo `.sql` do banco ainda não está neste repositório — copiar para
 > cá (ex: `db/schema.sql`) antes da Etapa 1.
@@ -32,8 +35,6 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
       pessoa, locatário, cliente, endereço, cidade, imóvel, foto,
       comodidade, imóvel_comodidade, avaliação, denúncia
 - [ ] Popular com os dados mock do `data.jsx` como seed (valida o schema)
-- [ ] Ativar **Google** em Authentication → Providers
-      (precisa criar credencial OAuth no [Google Cloud Console](https://console.cloud.google.com) — o Supabase mostra o passo a passo na própria tela)
 - [ ] Criar bucket público `fotos-imoveis` em Storage
 - [ ] Anotar: `SUPABASE_URL`, `ANON_KEY`, `DATABASE_URL` (connection string)
 
@@ -41,14 +42,18 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 - [ ] Criar pasta `backend/` com FastAPI + SQLAlchemy + `.env`
 - [ ] Modelos SQLAlchemy espelhando as tabelas do schema
-- [ ] Middleware que valida o JWT do Supabase (uma função, ~20 linhas)
+- [ ] Hash de senha com `passlib[bcrypt]` (duas funções: `hash_senha` e
+      `verificar_senha`, bem diretas) e geração/validação de JWT próprio
+      com `python-jose`
 - [ ] Endpoints, nesta ordem (do mais simples pro mais complexo):
 
   | Endpoint | O que faz | Auth? |
   |---|---|---|
   | `GET /imoveis` | Lista com filtros (cidade, tipo, quartos, preço, busca) | Não |
   | `GET /imoveis/{id}` | Detalhe do imóvel | Não |
-  | `POST /usuarios/completar-perfil` | Salva CPF + telefone do locador após 1º login | Sim |
+  | `POST /auth/cadastro` | Cria pessoa (nome, e-mail, senha) e devolve JWT | Não |
+  | `POST /auth/login` | Confere e-mail + senha (hash) e devolve JWT | Não |
+  | `POST /usuarios/completar-perfil` | Salva CPF + telefone do locador (vira locador) | Sim |
   | `POST /imoveis` | Publicar imóvel | Sim (locador) |
   | `PATCH /imoveis/{id}` | Editar / ativar / pausar | Sim (dono) |
   | `DELETE /imoveis/{id}` | Excluir | Sim (dono) |
@@ -61,13 +66,14 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 ## Etapa 3 — Ligar o front no backend · ~3-4 dias
 
-- [ ] Instalar `@supabase/supabase-js` no front
+- [ ] Instalar `@supabase/supabase-js` no front (só para upload de foto no
+      Storage — login não passa por ele)
 - [ ] Criar `api.js`: um módulo único com todas as chamadas à API
-- [ ] **Login**: trocar o `GooglePicker` fake (`modals.jsx`) por
-      `supabase.auth.signInWithOAuth({ provider: 'google' })` — o modal de
-      contas hardcoded sai inteiro
-- [ ] **Sessão**: o supabase-js já persiste sozinho; ao carregar o app, ler
-      a sessão e restaurar o usuário (hoje o F5 desloga)
+- [ ] **Login**: trocar o `GooglePicker` fake (`modals.jsx`) por um form
+      simples de e-mail + senha, chamando `POST /auth/login` /
+      `POST /auth/cadastro` — o modal de contas hardcoded sai inteiro
+- [ ] **Sessão**: guardar o JWT retornado no `localStorage` e restaurar o
+      usuário ao carregar o app (hoje o F5 desloga)
 - [ ] **Home**: buscar imóveis de `GET /imoveis` em vez de `window.DATA`
       (filtros viram query params)
 - [ ] **Contato**: botão chama `POST /imoveis/{id}/contato` e mostra o
@@ -97,7 +103,8 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 - [ ] Backend no **Railway** ou **Render** (free tier, deploy por git push)
 - [ ] Front no **Vercel** ou **Netlify** (`npm run build` + pasta `dist`)
 - [ ] Configurar CORS no FastAPI com o domínio do front
-- [ ] Adicionar o domínio final nas URLs de redirect do Google OAuth
+- [ ] Definir a `SECRET_KEY` do JWT como variável de ambiente em produção
+      (nunca hardcoded no código)
 
 ---
 
@@ -115,5 +122,6 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 - **Nomenclatura**: no protótipo, `LOCATARIO` = dono do imóvel e `CLIENTE` =
   quem aluga. "Locatário" normalmente significa inquilino — conferir como
   está no `.sql` e alinhar os nomes agora, antes que vire confusão permanente.
-- Senhas somem do sistema: com Google OAuth ninguém digita senha, então a
-  coluna `senha` da tabela pessoa pode sair do schema.
+- **Senha**: a coluna `senha` da tabela pessoa passa a guardar o hash
+  bcrypt de verdade (hoje no `data.jsx` é uma string fixa tipo
+  `"hash_hs2022"`, não é hash de nada). Nunca guardar senha em texto puro.
