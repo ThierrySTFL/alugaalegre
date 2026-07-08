@@ -1,7 +1,7 @@
 CREATE TABLE pessoa(
 	idPessoa SERIAL,
     nome VARCHAR(100) not null,
-    email varchar(100) not null,
+    email varchar(100) not null UNIQUE,
     senha varchar(100) not null,
     CONSTRAINT pkPessoa PRIMARY KEY (idPessoa)
 );
