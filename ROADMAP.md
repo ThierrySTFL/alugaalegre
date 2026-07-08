@@ -29,8 +29,8 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 ## Etapa 1 — Supabase (banco + storage + auth) · ~1 dia
 
-- [ ] Criar projeto em [supabase.com](https://supabase.com) (plano free)
-- [ ] Rodar o `schema.sql` existente no SQL Editor do Supabase
+- [X] Criar projeto em [supabase.com](https://supabase.com) (plano free)
+- [X] Rodar o `schema.sql` existente no SQL Editor do Supabase
 - [ ] Conferir se o schema cobre tudo que o `data.jsx` usa:
       pessoa, locatário, cliente, endereço, cidade, imóvel, foto,
       comodidade, imóvel_comodidade, avaliação, denúncia
