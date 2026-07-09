@@ -119,42 +119,7 @@ const Detail = ({ listing, navigate, onContact, favorited, toggleFavorite }) => 
             </div>
           </div>
 
-          {/* Location */}
-          <div style={{ marginTop: 40 }}>
-            <h2 style={{ fontSize: 20 }}>Localização</h2>
-            <p className="muted" style={{ fontSize: 14, marginTop: 6 }}>
-              {listing.neighborhood}, {listing.city}
-            </p>
-            <div style={{ marginTop: 16, height: 280, borderRadius: "var(--radius-lg)", overflow: "hidden", border: "1px solid var(--line)" }}>
-              <div style={{
-                height: "100%",
-                background: `
-                  linear-gradient(180deg, var(--bg-2), var(--bg-3)),
-                  repeating-linear-gradient(0deg, transparent 0 39px, var(--line) 39px 40px),
-                  repeating-linear-gradient(90deg, transparent 0 39px, var(--line) 39px 40px)
-                `,
-                backgroundBlendMode: "multiply",
-                position: "relative",
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>
-                <div style={{ position: "absolute", inset: 0,
-                  background: "repeating-linear-gradient(0deg, transparent 0 39px, rgba(0,0,0,0.05) 39px 40px), repeating-linear-gradient(90deg, transparent 0 39px, rgba(0,0,0,0.05) 39px 40px)" }} />
-                <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
-                  <div style={{
-                    width: 32, height: 32, borderRadius: "50% 50% 50% 0",
-                    transform: "rotate(-45deg)", background: "var(--accent)",
-                    boxShadow: "0 6px 16px rgba(30,58,95,0.35)",
-                  }} />
-                  <span className="mono" style={{ background: "var(--bg)", padding: "4px 8px", borderRadius: 4, fontSize: 10 }}>
-                    {listing.neighborhood}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <p className="muted" style={{ fontSize: 12, marginTop: 8 }}>
-              Endereço completo enviado após contato com o locador.
-            </p>
-          </div>
+
         </div>
 
         {/* Sticky sidebar — contact */}
