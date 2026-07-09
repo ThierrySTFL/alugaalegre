@@ -49,8 +49,11 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
   const [listings, setListings] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
+  // Ignora respostas obsoletas (filtro trocado antes de a anterior chegar).
+  const reqId = React.useRef(0);
 
   const buscar = React.useCallback(async () => {
+    const meuId = ++reqId.current;
     setLoading(true);
     setError(null);
     try {
@@ -62,12 +65,14 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
         preco_max: maxPrice < 5000 ? maxPrice : undefined,
       };
       const data = await window.api.listarImoveis(filtros);
+      if (meuId !== reqId.current) return; // chegou uma busca mais nova
       setListings(data.map(adaptAnuncio));
     } catch (err) {
+      if (meuId !== reqId.current) return;
       setError(err.message || "Não foi possível carregar os imóveis.");
       setListings([]);
     } finally {
-      setLoading(false);
+      if (meuId === reqId.current) setLoading(false);
     }
   }, [query, city, type, bedrooms, maxPrice]);
 
