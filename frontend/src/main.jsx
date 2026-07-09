@@ -3,6 +3,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import "./tweaks-panel.jsx";
+import "./supabase.jsx";
 import "./data.jsx";
 import "./components.jsx";
 import "./modals.jsx";
