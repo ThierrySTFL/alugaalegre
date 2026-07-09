@@ -94,17 +94,20 @@ class AnuncioOut(BaseModel):
 
 
 class EnderecoCreate(BaseModel):
-    rua: str
+    # Limites casam com as colunas do banco para falhar com 422, não 500.
+    rua: str = Field(min_length=1, max_length=100)
     numero: int = Field(ge=0)
-    bairro: str
-    cep: str
-    cidade: str
+    bairro: str = Field(min_length=1, max_length=100)
+    cep: str = Field(min_length=1, max_length=10)
+    cidade: str = Field(min_length=1, max_length=100)
     uf: str = Field(min_length=2, max_length=2)
 
 
 class FotoCreate(BaseModel):
-    url: str
-    descricao: Optional[str] = None
+    # Limites casam com as colunas do banco (foto.url VARCHAR(300),
+    # foto.descricao VARCHAR(100)) — falha cedo com 422 em vez de 500.
+    url: str = Field(min_length=1, max_length=300)
+    descricao: Optional[str] = Field(default=None, max_length=100)
     capa: bool = False
 
 
