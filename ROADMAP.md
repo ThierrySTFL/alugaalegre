@@ -95,7 +95,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
         Supabase Storage)
   - [X] **Front — api.js**: `getTipos()`, `getComodidades()` e ajustar
         `criarImovel` para o novo contrato (endereço + fotos)
-  - [ ] **Front — form**: carregar tipos/comodidades da API e adicionar os
+  - [X] **Front — form**: carregar tipos/comodidades da API e adicionar os
         campos que faltam (rua, número, CEP)
   - [ ] **Front — upload real**: trocar o botão fake por `<input
         type="file">` que sobe as imagens pro Storage via `window.uploadFoto`,
