@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import Column, Date, DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy import BigInteger, Column, Date, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -44,7 +44,7 @@ class Locador(Base):
 
     idlocador = Column(Integer, ForeignKey("pessoa.idpessoa"), primary_key=True)
     cpf = Column(String(11), nullable=False)
-    telefone = Column(Integer, nullable=False)
+    telefone = Column(BigInteger, nullable=False)
     desde = Column(Date, nullable=False)
     qtddenuncias = Column(Integer, nullable=False)
     mediaavaliacao = Column(Float, nullable=False)

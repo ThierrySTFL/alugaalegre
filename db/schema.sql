@@ -18,7 +18,7 @@ CREATE TABLE cliente(
 CREATE TABLE locador(
 	idLocador int not null,
     CPF VARCHAR(11) not null,
-    telefone int not null,
+    telefone BIGINT not null,
     desde date not null,
 	qtdDenuncias int not null,
 	mediaavaliacao float not null,
