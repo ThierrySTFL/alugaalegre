@@ -119,3 +119,24 @@ CREATE TABLE foto(
 	CONSTRAINT fkFotoAnuncio FOREIGN KEY (idAnuncio)
 		REFERENCES anuncio (idAnuncio)
 );
+CREATE TABLE favorito(
+	idCliente int not null,
+	idAnuncio int not null,
+	dataFavorito TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT pkFavorito PRIMARY KEY (idCliente, idAnuncio),
+	CONSTRAINT fkFavoritoCliente FOREIGN KEY (idCliente)
+		REFERENCES cliente (idCliente),
+	CONSTRAINT fkFavoritoAnuncio FOREIGN KEY (idAnuncio)
+		REFERENCES anuncio (idAnuncio)
+);
+CREATE TABLE contato(
+	idContato SERIAL,
+	idCliente int not null,
+	idAnuncio int not null,
+	dataContato TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT pkContato PRIMARY KEY (idContato),
+	CONSTRAINT fkContatoCliente FOREIGN KEY (idCliente)
+		REFERENCES cliente (idCliente),
+	CONSTRAINT fkContatoAnuncio FOREIGN KEY (idAnuncio)
+		REFERENCES anuncio (idAnuncio)
+);

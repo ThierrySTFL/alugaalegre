@@ -45,7 +45,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 - [X] Hash de senha com `passlib[bcrypt]` (duas funções: `hash_senha` e
       `verificar_senha`, bem diretas) e geração/validação de JWT próprio
       com `python-jose`
-- [ ] Endpoints, nesta ordem (do mais simples pro mais complexo):
+- [X] Endpoints, nesta ordem (do mais simples pro mais complexo):
 
   | Endpoint | O que faz | Auth? |
   |---|---|---|
@@ -62,7 +62,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
   | `GET /meus-contatos` | "Contatos recentes" do painel | Sim (locador) |
   | `GET/POST /favoritos` | Favoritos do usuário | Sim |
 
-- [ ] Testar tudo pelo `/docs` (Swagger automático do FastAPI)
+- [X] Testar tudo pelo `/docs` (Swagger automático do FastAPI)
 
 ## Etapa 3 — Ligar o front no backend · ~3-4 dias
 

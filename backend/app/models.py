@@ -35,13 +35,15 @@ class Cliente(Base):
 
     pessoa = relationship("Pessoa", back_populates="cliente")
     avaliacoes = relationship("Avaliacao", back_populates="cliente")
+    favoritos = relationship("Favorito", back_populates="cliente")
+    contatos = relationship("Contato", back_populates="cliente")
 
 
 class Locador(Base):
     __tablename__ = "locador"
 
     idlocador = Column(Integer, ForeignKey("pessoa.idpessoa"), primary_key=True)
-    cpf = Column(String(11))
+    cpf = Column(String(11), nullable=False)
     telefone = Column(Integer, nullable=False)
     desde = Column(Date, nullable=False)
     qtddenuncias = Column(Integer, nullable=False)
@@ -69,6 +71,7 @@ class Endereco(Base):
     idcidade = Column(Integer, ForeignKey("cidade.idcidade"), nullable=False)
     rua = Column(String(100), nullable=False)
     bairro = Column(String(100), nullable=False)
+    numero = Column(Integer, nullable=False)
     cep = Column(String(10), nullable=False)
 
     cidade = relationship("Cidade", back_populates="enderecos")
@@ -120,6 +123,8 @@ class Anuncio(Base):
     fotos = relationship("Foto", back_populates="anuncio")
     denuncias = relationship("Denuncia", back_populates="anuncio")
     comodidades = relationship("AnuncioComodidade", back_populates="anuncio")
+    favoritos = relationship("Favorito", back_populates="anuncio")
+    contatos = relationship("Contato", back_populates="anuncio")
 
 
 class Denuncia(Base):
@@ -129,6 +134,7 @@ class Denuncia(Base):
     idpessoa = Column(Integer, ForeignKey("pessoa.idpessoa"), nullable=False)
     idanuncio = Column(Integer, ForeignKey("anuncio.idanuncio"), nullable=False)
     descricao = Column(String(200), nullable=False)
+    status = Column(String(1), default="A")
     datadenuncia = Column(Date, default=date.today)
 
     pessoa = relationship("Pessoa", back_populates="denuncias")
@@ -161,8 +167,31 @@ class Foto(Base):
     idfoto = Column(Integer, primary_key=True)
     idanuncio = Column(Integer, ForeignKey("anuncio.idanuncio"), nullable=False)
     descricao = Column(String(100))
-    url = Column(String(300))
+    url = Column(String(300), nullable=False)
     capa = Column(String(1), default="N")
     datahora = Column(DateTime, default=datetime.utcnow)
 
     anuncio = relationship("Anuncio", back_populates="fotos")
+
+
+class Favorito(Base):
+    __tablename__ = "favorito"
+
+    idcliente = Column(Integer, ForeignKey("cliente.idcliente"), primary_key=True)
+    idanuncio = Column(Integer, ForeignKey("anuncio.idanuncio"), primary_key=True)
+    datafavorito = Column(DateTime, default=datetime.utcnow)
+
+    cliente = relationship("Cliente", back_populates="favoritos")
+    anuncio = relationship("Anuncio", back_populates="favoritos")
+
+
+class Contato(Base):
+    __tablename__ = "contato"
+
+    idcontato = Column(Integer, primary_key=True)
+    idcliente = Column(Integer, ForeignKey("cliente.idcliente"), nullable=False)
+    idanuncio = Column(Integer, ForeignKey("anuncio.idanuncio"), nullable=False)
+    datacontato = Column(DateTime, default=datetime.utcnow)
+
+    cliente = relationship("Cliente", back_populates="contatos")
+    anuncio = relationship("Anuncio", back_populates="contatos")
