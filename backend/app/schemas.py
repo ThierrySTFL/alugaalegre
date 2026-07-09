@@ -22,6 +22,13 @@ class Token(BaseModel):
     token_type: str = "bearer"
 
 
+class PessoaMe(BaseModel):
+    idpessoa: int
+    nome: str
+    email: str
+    is_locador: bool
+
+
 class CompletarPerfil(BaseModel):
     cpf: str
     telefone: int

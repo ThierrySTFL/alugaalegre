@@ -77,6 +77,8 @@ const api = {
   cadastro: (nome, email, senha) =>
     request("POST", "/auth/cadastro", { body: { nome, email, senha } }),
   login: (email, senha) => request("POST", "/auth/login", { body: { email, senha } }),
+  // Quem sou eu (a partir do token): { idpessoa, nome, email, is_locador }.
+  me: () => request("GET", "/auth/me", { auth: true }),
 
   // --- perfil ---
   // Transforma a pessoa em locador (CPF + telefone).
