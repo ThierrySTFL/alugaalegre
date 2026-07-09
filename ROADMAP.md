@@ -69,10 +69,10 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 - [X] Instalar `@supabase/supabase-js` no front (só para upload de foto no
       Storage — login não passa por ele)
 - [X] Criar `api.js`: um módulo único com todas as chamadas à API
-- [ ] **Login**: trocar o `GooglePicker` fake (`modals.jsx`) por um form
+- [X] **Login**: trocar o `GooglePicker` fake (`modals.jsx`) por um form
       simples de e-mail + senha, chamando `POST /auth/login` /
       `POST /auth/cadastro` — o modal de contas hardcoded sai inteiro
-- [ ] **Sessão**: guardar o JWT retornado no `localStorage` e restaurar o
+- [X] **Sessão**: guardar o JWT retornado no `localStorage` e restaurar o
       usuário ao carregar o app (hoje o F5 desloga)
 - [ ] **Home**: buscar imóveis de `GET /imoveis` em vez de `window.DATA`
       (filtros viram query params)
