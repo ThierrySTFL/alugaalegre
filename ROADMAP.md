@@ -87,7 +87,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
       Dividido em passos (backend primeiro, depois o front):
   - [X] **Back — referências**: `GET /tipos` e `GET /comodidades`
         (id + nome) para o form montar as opções com os ids reais
-  - [ ] **Back — endereço inline**: `POST /imoveis` passa a aceitar o
+  - [X] **Back — endereço inline**: `POST /imoveis` passa a aceitar o
         endereço (rua, número, bairro, CEP, cidade, UF) e cria/reaproveita
         `cidade` + `endereco` no servidor, em vez de exigir `idendereco`
   - [ ] **Back — fotos**: `AnuncioCreate` recebe a lista de fotos

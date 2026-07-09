@@ -93,9 +93,18 @@ class AnuncioOut(BaseModel):
     locador: LocadorOut
 
 
+class EnderecoCreate(BaseModel):
+    rua: str
+    numero: int = Field(ge=0)
+    bairro: str
+    cep: str
+    cidade: str
+    uf: str = Field(min_length=2, max_length=2)
+
+
 class AnuncioCreate(BaseModel):
     idtipo: int
-    idendereco: int
+    endereco: EnderecoCreate
     titulo: Optional[str] = None
     preco: float = Field(gt=0)
     descricao: str

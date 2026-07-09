@@ -121,8 +121,6 @@ def criar_imovel(
 ):
     if db.get(Tipo, dados.idtipo) is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Tipo de imóvel não encontrado")
-    if db.get(Endereco, dados.idendereco) is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Endereço não encontrado")
 
     comodidade_ids = set(dados.comodidade_ids)
     for idcomodidade in comodidade_ids:
@@ -131,10 +129,32 @@ def criar_imovel(
                 status.HTTP_404_NOT_FOUND, f"Comodidade {idcomodidade} não encontrada"
             )
 
+    # Encontra ou cria a cidade (por nome + UF) e cria o endereço.
+    end = dados.endereco
+    cidade = (
+        db.query(Cidade)
+        .filter(Cidade.nome.ilike(end.cidade), Cidade.uf.ilike(end.uf))
+        .first()
+    )
+    if cidade is None:
+        cidade = Cidade(nome=end.cidade.strip(), uf=end.uf.upper())
+        db.add(cidade)
+        db.flush()
+
+    endereco = Endereco(
+        idcidade=cidade.idcidade,
+        rua=end.rua,
+        bairro=end.bairro,
+        numero=end.numero,
+        cep=end.cep,
+    )
+    db.add(endereco)
+    db.flush()
+
     anuncio = Anuncio(
         idtipo=dados.idtipo,
         idlocador=locador.idlocador,
-        idendereco=dados.idendereco,
+        idendereco=endereco.idendereco,
         titulo=dados.titulo,
         preco=dados.preco,
         descricao=dados.descricao,
