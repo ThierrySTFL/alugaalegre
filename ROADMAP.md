@@ -97,7 +97,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
         `criarImovel` para o novo contrato (endereço + fotos)
   - [X] **Front — form**: carregar tipos/comodidades da API e adicionar os
         campos que faltam (rua, número, CEP)
-  - [ ] **Front — upload real**: trocar o botão fake por `<input
+  - [X] **Front — upload real**: trocar o botão fake por `<input
         type="file">` que sobe as imagens pro Storage via `window.uploadFoto`,
         com preview e a primeira como capa
   - [ ] **Front — submeter**: `publish()` chama `POST /imoveis` com

@@ -85,8 +85,12 @@ const AddProperty = ({ navigate, onCreate }) => {
       if (!data.price || parseInt(data.price, 10) < 100) e.price = "Informe um preço válido.";
       if (!data.area || parseInt(data.area, 10) < 10) e.area = "Informe a área em m².";
     }
-    if (step === 3 && data.photos.length < 3) {
-      e.photos = "Adicione pelo menos 3 fotos.";
+    if (step === 3) {
+      if (data.photos.some((p) => p.uploading)) {
+        e.photos = "Aguarde o upload das fotos terminar.";
+      } else if (data.photos.filter((p) => p.url && !p.error).length < 3) {
+        e.photos = "Adicione pelo menos 3 fotos.";
+      }
     }
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -98,12 +102,53 @@ const AddProperty = ({ navigate, onCreate }) => {
   };
   const back = () => setStep((s) => Math.max(1, s - 1));
 
-  const addPhoto = () => {
-    const tags = ["Sala", "Cozinha", "Quarto principal", "Quarto 2", "Banheiro", "Varanda", "Fachada", "Vista", "Área comum"];
-    const tag = tags[data.photos.length % tags.length];
-    update("photos", [...data.photos, { id: `p-${Date.now()}-${data.photos.length}`, label: tag }]);
+  const fileInputRef = React.useRef(null);
+  const MAX_MB = 5;
+
+  // Sobe cada arquivo pro Supabase Storage; mostra preview local na hora e
+  // troca por estado de sucesso/erro conforme o upload resolve.
+  const handleFiles = (e) => {
+    const files = Array.from(e.target.files || []);
+    e.target.value = ""; // permite re-selecionar o mesmo arquivo
+    let rejeitadas = 0;
+    for (const file of files) {
+      if (!file.type.startsWith("image/") || file.size > MAX_MB * 1024 * 1024) {
+        rejeitadas++;
+        continue;
+      }
+      const id = `ph-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const preview = URL.createObjectURL(file);
+      setData((d) => ({
+        ...d,
+        photos: [...d.photos, { id, url: null, preview, uploading: true, error: false }],
+      }));
+      window
+        .uploadFoto(file)
+        .then((url) =>
+          setData((d) => ({
+            ...d,
+            photos: d.photos.map((p) => (p.id === id ? { ...p, url, uploading: false } : p)),
+          }))
+        )
+        .catch(() =>
+          setData((d) => ({
+            ...d,
+            photos: d.photos.map((p) => (p.id === id ? { ...p, uploading: false, error: true } : p)),
+          }))
+        );
+    }
+    setErrors((prev) => ({
+      ...prev,
+      photos: rejeitadas > 0 ? `${rejeitadas} arquivo(s) ignorado(s): use imagens de até ${MAX_MB} MB.` : undefined,
+    }));
   };
-  const removePhoto = (id) => update("photos", data.photos.filter((p) => p.id !== id));
+
+  const removePhoto = (id) =>
+    setData((d) => {
+      const alvo = d.photos.find((p) => p.id === id);
+      if (alvo?.preview) URL.revokeObjectURL(alvo.preview);
+      return { ...d, photos: d.photos.filter((p) => p.id !== id) };
+    });
 
   const publish = () => {
     setPublishing(true);
@@ -119,7 +164,7 @@ const AddProperty = ({ navigate, onCreate }) => {
         bathrooms: data.bathrooms,
         area: parseInt(data.area, 10),
         amenities: data.comodidadeIds.map(comodidadeNome).filter(Boolean),
-        photoTags: data.photos.map((p) => p.label),
+        photoTags: data.photos.map((p) => p.url).filter(Boolean),
         description: data.description,
         desc: data.description.slice(0, 60),
         status: "active",
@@ -284,12 +329,26 @@ const AddProperty = ({ navigate, onCreate }) => {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginTop: 24 }}>
             {data.photos.map((p, i) => (
-              <div key={p.id} style={{ position: "relative" }}>
-                <Photo label={p.label} aspect="4 / 3" />
-                {i === 0 && (
+              <div key={p.id} style={{ position: "relative", aspectRatio: "4 / 3", borderRadius: "var(--radius)", overflow: "hidden", background: "var(--bg-2)" }}>
+                <img
+                  src={p.preview || p.url}
+                  alt=""
+                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: p.uploading || p.error ? 0.4 : 1 }}
+                />
+                {i === 0 && !p.error && (
                   <span className="pill sun" style={{ position: "absolute", top: 8, left: 8 }}>
                     <Icon name="star" size={11} /> Capa
                   </span>
+                )}
+                {p.uploading && (
+                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <span className="spinner" style={{ color: "var(--accent)" }} />
+                  </div>
+                )}
+                {p.error && (
+                  <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4, color: "var(--danger)", fontSize: 11, textAlign: "center", padding: 8 }}>
+                    <Icon name="close" size={16} /> Falha no upload
+                  </div>
                 )}
                 <button
                   onClick={() => removePhoto(p.id)}
@@ -301,7 +360,7 @@ const AddProperty = ({ navigate, onCreate }) => {
               </div>
             ))}
             <button
-              onClick={addPhoto}
+              onClick={() => fileInputRef.current?.click()}
               style={{
                 aspectRatio: "4 / 3", border: "1.5px dashed var(--line-2)", background: "transparent",
                 borderRadius: "var(--radius)", display: "flex", flexDirection: "column",
@@ -315,6 +374,14 @@ const AddProperty = ({ navigate, onCreate }) => {
               <span style={{ fontSize: 13, fontWeight: 500 }}>Adicionar foto</span>
               <span className="mono">JPG / PNG · até 5 MB</span>
             </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFiles}
+              style={{ display: "none" }}
+            />
           </div>
 
           {errors.photos && <span className="err" style={{ marginTop: 12, display: "block" }}>{errors.photos}</span>}
@@ -326,6 +393,7 @@ const AddProperty = ({ navigate, onCreate }) => {
     }
 
     // step === 4
+    const fotosValidas = data.photos.filter((p) => p.url && !p.error);
     return (
       <div>
         <h2 style={{ fontSize: 22 }}>Revise antes de publicar</h2>
@@ -335,10 +403,14 @@ const AddProperty = ({ navigate, onCreate }) => {
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 32, marginTop: 28 }}>
           <div>
-            <Photo label={data.photos[0]?.label || "Capa"} aspect="4 / 3" />
+            {fotosValidas[0] ? (
+              <img src={fotosValidas[0].url} alt="" style={{ width: "100%", aspectRatio: "4 / 3", objectFit: "cover", borderRadius: "var(--radius)", display: "block" }} />
+            ) : (
+              <Photo label="Capa" aspect="4 / 3" />
+            )}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 6 }}>
-              {data.photos.slice(1, 4).map((p) => (
-                <Photo key={p.id} label="" aspect="1 / 1" style={{ padding: 0 }} />
+              {fotosValidas.slice(1, 4).map((p) => (
+                <img key={p.id} src={p.url} alt="" style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", borderRadius: "var(--radius)", display: "block" }} />
               ))}
             </div>
           </div>
