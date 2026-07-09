@@ -130,14 +130,17 @@ def criar_imovel(
             )
 
     # Encontra ou cria a cidade (por nome + UF) e cria o endereço.
+    # Normaliza antes de buscar E criar para não duplicar cidade por espaço/caixa.
     end = dados.endereco
+    cidade_nome = end.cidade.strip()
+    cidade_uf = end.uf.strip().upper()
     cidade = (
         db.query(Cidade)
-        .filter(Cidade.nome.ilike(end.cidade), Cidade.uf.ilike(end.uf))
+        .filter(Cidade.nome.ilike(cidade_nome), Cidade.uf.ilike(cidade_uf))
         .first()
     )
     if cidade is None:
-        cidade = Cidade(nome=end.cidade.strip(), uf=end.uf.upper())
+        cidade = Cidade(nome=cidade_nome, uf=cidade_uf)
         db.add(cidade)
         db.flush()
 
