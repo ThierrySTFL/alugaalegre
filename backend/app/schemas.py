@@ -74,21 +74,21 @@ class AnuncioCreate(BaseModel):
     idtipo: int
     idendereco: int
     titulo: Optional[str] = None
-    preco: float
+    preco: float = Field(gt=0)
     descricao: str
-    quartos: int
-    banheiros: int
-    area: float
+    quartos: int = Field(ge=0)
+    banheiros: int = Field(ge=0)
+    area: float = Field(gt=0)
     comodidade_ids: List[int] = []
 
 
 class AnuncioUpdate(BaseModel):
     titulo: Optional[str] = None
-    preco: Optional[float] = None
+    preco: Optional[float] = Field(default=None, gt=0)
     descricao: Optional[str] = None
-    quartos: Optional[int] = None
-    banheiros: Optional[int] = None
-    area: Optional[float] = None
+    quartos: Optional[int] = Field(default=None, ge=0)
+    banheiros: Optional[int] = Field(default=None, ge=0)
+    area: Optional[float] = Field(default=None, gt=0)
     status: Optional[str] = Field(default=None, max_length=1)
 
 

@@ -11,6 +11,7 @@ from app.models import (
     AnuncioComodidade,
     Cidade,
     Cliente,
+    Comodidade,
     Contato,
     Denuncia,
     Endereco,
@@ -118,6 +119,18 @@ def criar_imovel(
     locador: Locador = Depends(get_current_locador),
     db: Session = Depends(get_db),
 ):
+    if db.get(Tipo, dados.idtipo) is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Tipo de imóvel não encontrado")
+    if db.get(Endereco, dados.idendereco) is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Endereço não encontrado")
+
+    comodidade_ids = set(dados.comodidade_ids)
+    for idcomodidade in comodidade_ids:
+        if db.get(Comodidade, idcomodidade) is None:
+            raise HTTPException(
+                status.HTTP_404_NOT_FOUND, f"Comodidade {idcomodidade} não encontrada"
+            )
+
     anuncio = Anuncio(
         idtipo=dados.idtipo,
         idlocador=locador.idlocador,
@@ -133,7 +146,7 @@ def criar_imovel(
     db.add(anuncio)
     db.flush()
 
-    for idcomodidade in dados.comodidade_ids:
+    for idcomodidade in comodidade_ids:
         db.add(AnuncioComodidade(idanuncio=anuncio.idanuncio, idcomodidade=idcomodidade))
 
     db.commit()
