@@ -74,7 +74,10 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
       `POST /auth/cadastro` — o modal de contas hardcoded sai inteiro
 - [X] **Sessão**: guardar o JWT retornado no `localStorage` e restaurar o
       usuário ao carregar o app (hoje o F5 desloga)
-- [ ] **Home**: buscar imóveis de `GET /imoveis` em vez de `window.DATA`
+- [X] **CORS**: ligar o `CORSMiddleware` no FastAPI já agora (liberando o
+      front em dev), para conseguir testar as chamadas no navegador — a
+      Etapa 5 só valida os domínios de produção
+- [X] **Home**: buscar imóveis de `GET /imoveis` em vez de `window.DATA`
       (filtros viram query params)
 - [ ] **Contato**: botão chama `POST /imoveis/{id}/contato` e mostra o
       WhatsApp retornado
@@ -102,7 +105,11 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 - [ ] Backend no **Railway** ou **Render** (free tier, deploy por git push)
 - [ ] Front no **Vercel** ou **Netlify** (`npm run build` + pasta `dist`)
-- [ ] Configurar CORS no FastAPI com o domínio do front
+- [ ] CORS: o `CORSMiddleware` já foi ligado na Etapa 3; aqui só adicionar
+      o domínio de produção do front (via env `CORS_ORIGINS`) e **validar
+      que está realmente funcionando** — abrir o front publicado, disparar
+      uma chamada real e confirmar no DevTools (aba Network) que não há erro
+      de CORS e que o header `access-control-allow-origin` volta correto
 - [ ] Definir a `SECRET_KEY` do JWT como variável de ambiente em produção
       (nunca hardcoded no código)
 

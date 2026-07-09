@@ -26,7 +26,7 @@ const Detail = ({ listing, navigate, onContact, favorited, toggleFavorite }) => 
               <Icon name="pin" size={14} /> {listing.neighborhood}, {listing.city}
             </span>
             <span>·</span>
-            <span className="mono">ID {listing.id.toUpperCase()}</span>
+            <span className="mono">ID {String(listing.id).toUpperCase()}</span>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
@@ -142,7 +142,9 @@ const Detail = ({ listing, navigate, onContact, favorited, toggleFavorite }) => 
               <div>
                 <div style={{ fontSize: 14, fontWeight: 500 }}>{listing.landlord.name}</div>
                 <div className="muted" style={{ fontSize: 12 }}>
-                  No AlugaAlegre desde {listing.landlord.since} · {listing.landlord.listings} {listing.landlord.listings === 1 ? "imóvel" : "imóveis"}
+                  No AlugaAlegre desde {listing.landlord.since}
+                  {listing.landlord.listings != null &&
+                    ` · ${listing.landlord.listings} ${listing.landlord.listings === 1 ? "imóvel" : "imóveis"}`}
                 </div>
               </div>
             </div>

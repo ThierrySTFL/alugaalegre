@@ -1,8 +1,44 @@
 import React from "react";
-// Public home — hero, filters, grid
+// Public home — hero, filters, grid (dados vindos de GET /imoveis)
+
+// Formata o telefone (inteiro vindo da API) para exibição.
+const formatTel = (tel) => {
+  const d = String(tel ?? "").replace(/\D/g, "");
+  if (d.length === 11) return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+  if (d.length === 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return String(tel ?? "");
+};
+
+// Adapta um AnuncioOut da API para a forma de "listing" que o app já consome.
+const adaptAnuncio = (a) => ({
+  id: a.idanuncio,
+  title: a.titulo || "Imóvel sem título",
+  type: a.tipo,
+  city: `${a.endereco.cidade}, ${a.endereco.uf}`,
+  neighborhood: a.endereco.bairro,
+  price: a.preco,
+  bedrooms: a.quartos,
+  bathrooms: a.banheiros,
+  area: a.area,
+  amenities: a.comodidades || [],
+  photoTags: (a.fotos || []).map((f) => f.descricao || "Foto"),
+  photos: a.fotos || [],
+  landlord: {
+    name: a.locador.nome,
+    phone: formatTel(a.locador.telefone),
+    since: String(a.locador.desde || "").slice(0, 4),
+    listings: null,
+    rating: a.locador.mediaavaliacao,
+  },
+  description: a.descricao,
+  desc: a.descricao,
+  status: a.status === "A" ? "active" : "inactive",
+  _raw: a,
+});
+window.adaptAnuncio = adaptAnuncio;
 
 const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
-  const { LISTINGS, CITIES, TYPES } = window.DATA;
+  const { CITIES, TYPES } = window.DATA;
   const [query, setQuery] = React.useState("");
   const [city, setCity] = React.useState("");
   const [type, setType] = React.useState("");
@@ -10,28 +46,43 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
   const [maxPrice, setMaxPrice] = React.useState(5000);
   const [showFilters, setShowFilters] = React.useState(false);
 
-  const visible = React.useMemo(() => {
-    return LISTINGS.filter((l) => l.status === "active").filter((l) => {
-      if (query) {
-        const q = query.toLowerCase();
-        if (!l.title.toLowerCase().includes(q) &&
-        !l.neighborhood.toLowerCase().includes(q) &&
-        !l.city.toLowerCase().includes(q)) return false;
-      }
-      if (city && l.city !== city) return false;
-      if (type && l.type !== type) return false;
-      if (bedrooms) {
-        const b = parseInt(bedrooms, 10);
-        if (b === 4 ? l.bedrooms < 4 : l.bedrooms !== b) return false;
-      }
-      if (l.price > maxPrice) return false;
-      return true;
-    });
+  const [listings, setListings] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+
+  const buscar = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const filtros = {
+        busca: query.trim() || undefined,
+        cidade: city ? city.split(",")[0].trim() : undefined,
+        tipo: type || undefined,
+        quartos: bedrooms ? parseInt(bedrooms, 10) : undefined,
+        preco_max: maxPrice < 5000 ? maxPrice : undefined,
+      };
+      const data = await window.api.listarImoveis(filtros);
+      setListings(data.map(adaptAnuncio));
+    } catch (err) {
+      setError(err.message || "Não foi possível carregar os imóveis.");
+      setListings([]);
+    } finally {
+      setLoading(false);
+    }
   }, [query, city, type, bedrooms, maxPrice]);
 
+  // Busca com debounce sempre que um filtro muda (os filtros viram query params).
+  React.useEffect(() => {
+    const id = setTimeout(buscar, 350);
+    return () => clearTimeout(id);
+  }, [buscar]);
+
   const clearAll = () => {
-    setQuery("");setCity("");setType("");setBedrooms("");setMaxPrice(5000);
+    setQuery(""); setCity(""); setType(""); setBedrooms(""); setMaxPrice(5000);
   };
+
+  const irParaResultados = () =>
+    document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const activeFilters = [city, type, bedrooms, maxPrice < 5000 ? "preço" : ""].filter(Boolean).length;
 
@@ -51,10 +102,7 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
 
             {/* CTAs */}
             <div style={{ display: "flex", gap: 12, marginTop: 28, flexWrap: "wrap" }}>
-              <button
-                className="btn lg"
-                onClick={() => document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-              >
+              <button className="btn lg" onClick={irParaResultados}>
                 Ver imóveis disponíveis <Icon name="arrow" size={14} />
               </button>
               <button
@@ -78,7 +126,7 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
                 ].map((s) => (
                   <button
                     key={s.label}
-                    onClick={() => { s.set(); setTimeout(() => document.getElementById("results")?.scrollIntoView({ behavior: "smooth" }), 50); }}
+                    onClick={() => { s.set(); setTimeout(irParaResultados, 50); }}
                     style={{
                       cursor: "pointer", border: "1px solid var(--line-2)",
                       background: "transparent", color: "var(--ink-2)",
@@ -119,7 +167,7 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
               onChange={(e) => setQuery(e.target.value)}
               style={{ border: "none", paddingLeft: 38, background: "transparent", height: 48, boxShadow: "none" }}
               onFocus={(e) => e.target.style.boxShadow = "none"} />
-            
+
           </div>
           <div className="div" style={{ width: 1, height: 30 }}></div>
           <button className={"btn ghost"} onClick={() => setShowFilters(!showFilters)}
@@ -131,7 +179,7 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
               </span>
             }
           </button>
-          <button className="btn">Buscar</button>
+          <button className="btn" onClick={() => { buscar(); irParaResultados(); }}>Buscar</button>
         </div>
 
         {showFilters &&
@@ -151,12 +199,12 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
               </select>
             </div>
             <div className="field">
-              <label>Quartos</label>
+              <label>Quartos (mín.)</label>
               <select className="select" value={bedrooms} onChange={(e) => setBedrooms(e.target.value)}>
                 <option value="">Qualquer</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
+                <option value="1">1+</option>
+                <option value="2">2+</option>
+                <option value="3">3+</option>
                 <option value="4">4+</option>
               </select>
             </div>
@@ -175,7 +223,13 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
       <section className="container" id="results" style={{ marginTop: 48, scrollMarginTop: 80 }}>
         <header style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 24 }}>
           <div>
-            <h2 style={{ fontSize: 22 }}>{visible.length} {visible.length === 1 ? "imóvel disponível" : "imóveis disponíveis"}</h2>
+            <h2 style={{ fontSize: 22 }}>
+              {loading
+                ? "Buscando imóveis…"
+                : error
+                  ? "Não foi possível carregar"
+                  : `${listings.length} ${listings.length === 1 ? "imóvel disponível" : "imóveis disponíveis"}`}
+            </h2>
             <p className="muted" style={{ fontSize: 13, marginTop: 4 }}>
               Atualizado em tempo real · Anunciados pelos próprios donos
             </p>
@@ -191,24 +245,33 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
           </div>
         </header>
 
-        {visible.length === 0 ?
-        <div className="empty">
+        {loading ? (
+          <div className="empty" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+            <span className="spinner" style={{ width: 24, height: 24, color: "var(--accent)" }} />
+            <p style={{ margin: 0 }}>Carregando imóveis…</p>
+          </div>
+        ) : error ? (
+          <div className="empty">
+            <p style={{ margin: 0 }}>{error}</p>
+            <button className="btn ghost sm" style={{ marginTop: 16 }} onClick={buscar}>Tentar de novo</button>
+          </div>
+        ) : listings.length === 0 ? (
+          <div className="empty">
             <p style={{ margin: 0 }}>Nenhum imóvel encontrado com esses filtros.</p>
             <button className="btn ghost sm" style={{ marginTop: 16 }} onClick={clearAll}>Limpar filtros</button>
-          </div> :
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 36, rowGap: 48 }}>
-            {visible.map((l) =>
-          <ListingCard
-            key={l.id}
-            listing={l}
-            onOpen={openProperty}
-            onFavorite={toggleFavorite}
-            favorited={favorites.has(l.id)} />
-
-          )}
           </div>
-        }
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 36, rowGap: 48 }}>
+            {listings.map((l) => (
+              <ListingCard
+                key={l.id}
+                listing={l}
+                onOpen={openProperty}
+                onFavorite={toggleFavorite}
+                favorited={favorites.has(l.id)} />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Call to action — locador */}
