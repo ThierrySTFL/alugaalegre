@@ -40,7 +40,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 ## Etapa 2 — Backend FastAPI · ~3-4 dias
 
-- [ ] Criar pasta `backend/` com FastAPI + SQLAlchemy + `.env`
+- [X] Criar pasta `backend/` com FastAPI + SQLAlchemy + `.env`
 - [ ] Modelos SQLAlchemy espelhando as tabelas do schema
 - [ ] Hash de senha com `passlib[bcrypt]` (duas funções: `hash_senha` e
       `verificar_senha`, bem diretas) e geração/validação de JWT próprio
