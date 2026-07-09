@@ -85,7 +85,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
       `idendereco` e `comodidade_ids` prontos e não guarda fotos; o form não
       coleta rua/número/CEP e o botão de foto só cria um rótulo de texto.
       Dividido em passos (backend primeiro, depois o front):
-  - [ ] **Back — referências**: `GET /tipos` e `GET /comodidades`
+  - [X] **Back — referências**: `GET /tipos` e `GET /comodidades`
         (id + nome) para o form montar as opções com os ids reais
   - [ ] **Back — endereço inline**: `POST /imoveis` passa a aceitar o
         endereço (rua, número, bairro, CEP, cidade, UF) e cria/reaproveita

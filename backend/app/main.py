@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import auth, favoritos, imoveis, usuarios
+from app.routers import auth, favoritos, imoveis, referencias, usuarios
 
 app = FastAPI(title="AlugaAlegre API")
 
@@ -18,6 +18,7 @@ app.include_router(auth.router)
 app.include_router(usuarios.router)
 app.include_router(imoveis.router)
 app.include_router(favoritos.router)
+app.include_router(referencias.router)
 
 
 @app.get("/health")

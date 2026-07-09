@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # ---------- Auth ----------
@@ -32,6 +32,22 @@ class PessoaMe(BaseModel):
 class CompletarPerfil(BaseModel):
     cpf: str
     telefone: int
+
+
+# ---------- Referências (para montar o form de publicar) ----------
+
+class TipoOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    idtipo: int
+    nome: Optional[str] = None
+
+
+class ComodidadeOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    idcomodidade: int
+    nome: str
 
 
 # ---------- Imóvel (anúncio) ----------
