@@ -102,6 +102,12 @@ class EnderecoCreate(BaseModel):
     uf: str = Field(min_length=2, max_length=2)
 
 
+class FotoCreate(BaseModel):
+    url: str
+    descricao: Optional[str] = None
+    capa: bool = False
+
+
 class AnuncioCreate(BaseModel):
     idtipo: int
     endereco: EnderecoCreate
@@ -112,6 +118,7 @@ class AnuncioCreate(BaseModel):
     banheiros: int = Field(ge=0)
     area: float = Field(gt=0)
     comodidade_ids: List[int] = []
+    fotos: List[FotoCreate] = []
 
 
 class AnuncioUpdate(BaseModel):

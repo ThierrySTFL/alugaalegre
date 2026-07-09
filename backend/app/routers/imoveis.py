@@ -172,6 +172,20 @@ def criar_imovel(
     for idcomodidade in comodidade_ids:
         db.add(AnuncioComodidade(idanuncio=anuncio.idanuncio, idcomodidade=idcomodidade))
 
+    # Grava as fotos (URLs já vêm do Supabase Storage). Garante uma capa:
+    # se nenhuma vier marcada, a primeira vira capa.
+    capa_definida = any(f.capa for f in dados.fotos)
+    for i, foto in enumerate(dados.fotos):
+        eh_capa = foto.capa or (not capa_definida and i == 0)
+        db.add(
+            Foto(
+                idanuncio=anuncio.idanuncio,
+                url=foto.url,
+                descricao=foto.descricao,
+                capa="S" if eh_capa else "N",
+            )
+        )
+
     db.commit()
     db.refresh(anuncio)
     return _anuncio_to_out(anuncio)

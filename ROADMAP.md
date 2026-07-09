@@ -90,7 +90,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
   - [X] **Back — endereço inline**: `POST /imoveis` passa a aceitar o
         endereço (rua, número, bairro, CEP, cidade, UF) e cria/reaproveita
         `cidade` + `endereco` no servidor, em vez de exigir `idendereco`
-  - [ ] **Back — fotos**: `AnuncioCreate` recebe a lista de fotos
+  - [X] **Back — fotos**: `AnuncioCreate` recebe a lista de fotos
         (`url` + flag de capa) e grava na tabela `foto` (as URLs vêm do
         Supabase Storage)
   - [ ] **Front — api.js**: `getTipos()`, `getComodidades()` e ajustar
