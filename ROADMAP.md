@@ -31,12 +31,12 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 - [X] Criar projeto em [supabase.com](https://supabase.com) (plano free)
 - [X] Rodar o `schema.sql` existente no SQL Editor do Supabase
-- [ ] Conferir se o schema cobre tudo que o `data.jsx` usa:
+- [X] Conferir se o schema cobre tudo que o `data.jsx` usa:
       pessoa, locatário, cliente, endereço, cidade, imóvel, foto,
       comodidade, imóvel_comodidade, avaliação, denúncia
-- [ ] Popular com os dados mock do `data.jsx` como seed (valida o schema)
-- [ ] Criar bucket público `fotos-imoveis` em Storage
-- [ ] Anotar: `SUPABASE_URL`, `ANON_KEY`, `DATABASE_URL` (connection string)
+- [X] Popular com os dados mock do `data.jsx` como seed (valida o schema)
+- [X] Criar bucket público `fotos-imoveis` em Storage
+- [X] Anotar: `SUPABASE_URL`, `ANON_KEY`, `DATABASE_URL` (connection string)
 
 ## Etapa 2 — Backend FastAPI · ~3-4 dias
 
