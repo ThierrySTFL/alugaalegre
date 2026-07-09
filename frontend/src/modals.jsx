@@ -186,22 +186,46 @@ const EmailAuthForm = ({ onResult, defaultMode = "login", roleSlot = null }) => 
 };
 
 // ─── ContactModal ─────────────────────────────────────────────────────────────
-// Se o usuário já está logado → mostra o WhatsApp direto.
-// Se não → form de e-mail/senha → revela o WhatsApp e cria sessão de cliente.
+// Se o usuário já está logado → registra o contato direto (POST /imoveis/{id}/contato).
+// Se não → form de e-mail/senha → registra o contato e revela o WhatsApp retornado.
 
 const ContactModal = ({ listing, onClose, onUnlock, session }) => {
   const jaLogado = !!session;
   const [step, setStep] = React.useState(jaLogado ? "reveal" : "prompt");
   const [clientName, setClientName] = React.useState(session?.name || "");
+  const [whatsapp, setWhatsapp] = React.useState(null);
+  // Já logado abre direto no "reveal" e registra o contato na hora — começa
+  // carregando para não piscar o card de sucesso vazio antes do fetch.
+  const [loading, setLoading] = React.useState(jaLogado);
+  const [error, setError] = React.useState(null);
 
+  // Registra o contato no backend e guarda o WhatsApp devolvido.
+  const liberarContato = React.useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await window.api.contatarImovel(listing.id);
+      setWhatsapp(res.whatsapp);
+    } catch (err) {
+      setError(err.message || "Não foi possível liberar o contato.");
+    } finally {
+      setLoading(false);
+    }
+  }, [listing.id]);
+
+  // Já logado: registra o contato assim que o modal abre.
   React.useEffect(() => {
-    if (jaLogado) onUnlock?.({ name: session.name, email: session.email, role: "client" });
+    if (jaLogado) {
+      onUnlock?.({ name: session.name, email: session.email, role: "client" });
+      liberarContato();
+    }
   }, []);
 
   const handleResult = (r) => {
     setClientName(r.name);
     onUnlock?.({ name: r.name, email: r.email, role: "client" });
     setStep("reveal");
+    liberarContato();
   };
 
   if (step === "prompt") {
@@ -225,49 +249,70 @@ const ContactModal = ({ listing, onClose, onUnlock, session }) => {
   }
 
   // step === "reveal"
+  // Número nacional tem 10-11 dígitos (DDD + número); com código do país, 12-13.
+  // Decidir por tamanho evita confundir DDD 55 com o código do Brasil.
+  const waDigits = (whatsapp || "").replace(/\D/g, "");
+  const waLink = waDigits.length >= 12 ? waDigits : "55" + waDigits;
+
   return (
     <ModalShell onClose={onClose}>
       <div style={{ padding: 32, textAlign: "center" }}>
-        <div style={{
-          width: 52, height: 52, borderRadius: "50%",
-          background: "var(--accent-soft)", color: "var(--accent)",
-          display: "inline-flex", alignItems: "center", justifyContent: "center",
-        }}>
-          <Icon name="check" size={24} stroke={2} />
-        </div>
-        <h2 style={{ fontSize: 22, marginTop: 14, letterSpacing: "-0.02em" }}>Contato liberado!</h2>
-        <p className="muted" style={{ fontSize: 13, marginTop: 6 }}>
-          {clientName ? `Olá, ${clientName.split(" ")[0]}! ` : ""}
-          Avisamos {listing.landlord.name.split(" ")[0]} que você tem interesse.
-        </p>
-
-        <div className="card" style={{ padding: 20, marginTop: 22, textAlign: "left" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <Avatar name={listing.landlord.name} size={44} />
-            <div>
-              <div style={{ fontWeight: 500, fontSize: 15 }}>{listing.landlord.name}</div>
-              <div className="muted" style={{ fontSize: 12 }}>Locador · responde em ~3h</div>
+        {loading ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 14, padding: "24px 0" }}>
+            <span className="spinner" style={{ width: 26, height: 26, color: "var(--accent)" }} />
+            <p className="muted" style={{ margin: 0, fontSize: 14 }}>Liberando o contato…</p>
+          </div>
+        ) : error ? (
+          <>
+            <h2 style={{ fontSize: 20, letterSpacing: "-0.02em" }}>Ops!</h2>
+            <p className="muted" style={{ fontSize: 13, marginTop: 8 }}>{error}</p>
+            <button className="btn accent" style={{ marginTop: 18 }} onClick={liberarContato}>Tentar de novo</button>
+            <button className="btn ghost sm" style={{ marginTop: 10, width: "100%" }} onClick={onClose}>Fechar</button>
+          </>
+        ) : (
+          <>
+            <div style={{
+              width: 52, height: 52, borderRadius: "50%",
+              background: "var(--accent-soft)", color: "var(--accent)",
+              display: "inline-flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Icon name="check" size={24} stroke={2} />
             </div>
-          </div>
-          <div style={{ height: 1, background: "var(--line)", margin: "14px 0" }} />
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span className="mono muted">WhatsApp</span>
-            <span style={{ fontFamily: "var(--font-display)", fontSize: 16, letterSpacing: "-0.01em" }}>
-              {listing.landlord.phone}
-            </span>
-          </div>
-        </div>
+            <h2 style={{ fontSize: 22, marginTop: 14, letterSpacing: "-0.02em" }}>Contato liberado!</h2>
+            <p className="muted" style={{ fontSize: 13, marginTop: 6 }}>
+              {clientName ? `Olá, ${clientName.split(" ")[0]}! ` : ""}
+              Avisamos {listing.landlord.name.split(" ")[0]} que você tem interesse.
+            </p>
 
-        <a
-          className="btn lg"
-          style={{ width: "100%", marginTop: 18, background: "#25D366", borderColor: "#25D366", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
-          href={`https://wa.me/${listing.landlord.phone.replace(/\D/g, "")}?text=${encodeURIComponent(`Olá ${listing.landlord.name.split(" ")[0]}! Vi seu anúncio "${listing.title}" no AlugaAlegre e fiquei interessado(a). Podemos conversar?`)}`}
-          target="_blank" rel="noopener"
-          onClick={onClose}
-        >
-          <Icon name="whatsapp" size={16} /> Abrir conversa no WhatsApp
-        </a>
-        <button className="btn ghost sm" style={{ marginTop: 10 }} onClick={onClose}>Fechar</button>
+            <div className="card" style={{ padding: 20, marginTop: 22, textAlign: "left" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <Avatar name={listing.landlord.name} size={44} />
+                <div>
+                  <div style={{ fontWeight: 500, fontSize: 15 }}>{listing.landlord.name}</div>
+                  <div className="muted" style={{ fontSize: 12 }}>Locador · responde em ~3h</div>
+                </div>
+              </div>
+              <div style={{ height: 1, background: "var(--line)", margin: "14px 0" }} />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span className="mono muted">WhatsApp</span>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: 16, letterSpacing: "-0.01em" }}>
+                  {formatPhone(whatsapp || "")}
+                </span>
+              </div>
+            </div>
+
+            <a
+              className="btn lg"
+              style={{ width: "100%", marginTop: 18, background: "#25D366", borderColor: "#25D366", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+              href={`https://wa.me/${waLink}?text=${encodeURIComponent(`Olá ${listing.landlord.name.split(" ")[0]}! Vi seu anúncio "${listing.title}" no AlugaAlegre e fiquei interessado(a). Podemos conversar?`)}`}
+              target="_blank" rel="noopener"
+              onClick={onClose}
+            >
+              <Icon name="whatsapp" size={16} /> Abrir conversa no WhatsApp
+            </a>
+            <button className="btn ghost sm" style={{ marginTop: 10 }} onClick={onClose}>Fechar</button>
+          </>
+        )}
       </div>
     </ModalShell>
   );

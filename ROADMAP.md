@@ -79,7 +79,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
       Etapa 5 só valida os domínios de produção
 - [X] **Home**: buscar imóveis de `GET /imoveis` em vez de `window.DATA`
       (filtros viram query params)
-- [ ] **Contato**: botão chama `POST /imoveis/{id}/contato` e mostra o
+- [X] **Contato**: botão chama `POST /imoveis/{id}/contato` e mostra o
       WhatsApp retornado
 - [ ] **Publicar imóvel**: form envia pra `POST /imoveis`; fotos sobem pro
       Supabase Storage via `<input type="file">` (hoje o botão só adiciona
