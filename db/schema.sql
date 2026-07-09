@@ -17,7 +17,7 @@ CREATE TABLE cliente(
 );
 CREATE TABLE locador(
 	idLocador int not null,
-    CPF VARCHAR(11),
+    CPF VARCHAR(11) not null,
     telefone int not null,
     desde date not null,
 	qtdDenuncias int not null,
@@ -36,6 +36,7 @@ CREATE TABLE endereco(
     idCidade int not null,
     rua VARCHAR(100) NOT NULL,
     bairro VARCHAR(100) not null,
+	numero int not null,
     CEP VARCHAR(10) NOT NULL,
     CONSTRAINT pkEndereco PRIMARY KEY (idEndereco),
     CONSTRAINT fkEnderecoCidade foreign key (idCidade) REFERENCES cidade (idCidade)
@@ -84,6 +85,7 @@ CREATE TABLE denuncia(
 	idPessoa int not null,
 	idAnuncio int not null,
 	descricao VARCHAR(200) not null,
+	status char(1) DEFAULT 'A',
 	dataDenuncia date DEFAULT CURRENT_DATE,
 	CONSTRAINT pkDenuncia PRIMARY KEY (idDenuncia),
 	CONSTRAINT fkDenunciaPessoa FOREIGN KEY (idPessoa) 
@@ -110,7 +112,7 @@ CREATE TABLE foto(
 	idFoto SERIAL,
 	idAnuncio int not null,
 	descricao VARCHAR(100),
-	URL VARCHAR(300),
+	URL VARCHAR(300) not null,
 	capa char(1) DEFAULT 'N',
 	dataHora TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	CONSTRAINT pkFoto PRIMARY KEY (idFoto),
