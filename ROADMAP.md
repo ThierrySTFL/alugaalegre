@@ -81,9 +81,28 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
       (filtros viram query params)
 - [X] **Contato**: botão chama `POST /imoveis/{id}/contato` e mostra o
       WhatsApp retornado
-- [ ] **Publicar imóvel**: form envia pra `POST /imoveis`; fotos sobem pro
-      Supabase Storage via `<input type="file">` (hoje o botão só adiciona
-      um rótulo de texto — não existe upload real)
+- [ ] **Publicar imóvel** — o `POST /imoveis` hoje exige `idtipo`,
+      `idendereco` e `comodidade_ids` prontos e não guarda fotos; o form não
+      coleta rua/número/CEP e o botão de foto só cria um rótulo de texto.
+      Dividido em passos (backend primeiro, depois o front):
+  - [ ] **Back — referências**: `GET /tipos` e `GET /comodidades`
+        (id + nome) para o form montar as opções com os ids reais
+  - [ ] **Back — endereço inline**: `POST /imoveis` passa a aceitar o
+        endereço (rua, número, bairro, CEP, cidade, UF) e cria/reaproveita
+        `cidade` + `endereco` no servidor, em vez de exigir `idendereco`
+  - [ ] **Back — fotos**: `AnuncioCreate` recebe a lista de fotos
+        (`url` + flag de capa) e grava na tabela `foto` (as URLs vêm do
+        Supabase Storage)
+  - [ ] **Front — api.js**: `getTipos()`, `getComodidades()` e ajustar
+        `criarImovel` para o novo contrato (endereço + fotos)
+  - [ ] **Front — form**: carregar tipos/comodidades da API e adicionar os
+        campos que faltam (rua, número, CEP)
+  - [ ] **Front — upload real**: trocar o botão fake por `<input
+        type="file">` que sobe as imagens pro Storage via `window.uploadFoto`,
+        com preview e a primeira como capa
+  - [ ] **Front — submeter**: `publish()` chama `POST /imoveis` com
+        tipo/endereço/comodidades/fotos reais, com loading e erro; ao
+        concluir vai pro painel
 - [ ] **Painel**: usar `GET /meus-imoveis` e `GET /meus-contatos`; ligar
       editar/pausar/excluir nos endpoints (hoje "Editar" é um `alert()`)
 - [ ] **Favoritos**: persistir via API (hoje é um `Set` em memória)
