@@ -66,9 +66,9 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 ## Etapa 3 — Ligar o front no backend · ~3-4 dias
 
-- [ ] Instalar `@supabase/supabase-js` no front (só para upload de foto no
+- [X] Instalar `@supabase/supabase-js` no front (só para upload de foto no
       Storage — login não passa por ele)
-- [ ] Criar `api.js`: um módulo único com todas as chamadas à API
+- [X] Criar `api.js`: um módulo único com todas as chamadas à API
 - [ ] **Login**: trocar o `GooglePicker` fake (`modals.jsx`) por um form
       simples de e-mail + senha, chamando `POST /auth/login` /
       `POST /auth/cadastro` — o modal de contas hardcoded sai inteiro
