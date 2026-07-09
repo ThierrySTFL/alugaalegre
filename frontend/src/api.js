@@ -62,7 +62,9 @@ async function request(method, path, { body, auth = false, query } = {}) {
         : detail
           ? JSON.stringify(detail)
           : `Erro ${res.status}`;
-    throw new Error(msg);
+    const erro = new Error(msg);
+    erro.status = res.status;
+    throw erro;
   }
   return data;
 }

@@ -25,6 +25,8 @@ const App = () => {
   const [view, setView] = React.useState("home"); // home / detail / dashboard / add
   const [currentListing, setCurrentListing] = React.useState(null);
   const [session, setSession] = React.useState(null);
+  // Restaurando a sessão a partir do token guardado (evita piscar "deslogado" no F5).
+  const [restoring, setRestoring] = React.useState(() => !!window.api.getToken());
   const [showContact, setShowContact] = React.useState(false);
   const [contactListing, setContactListing] = React.useState(null);
   // showAuth: null (fechado) | "landlord" | "client" | "any"
@@ -43,6 +45,30 @@ const App = () => {
     document.documentElement.dataset.type = t.type;
     document.documentElement.dataset.density = t.density;
   }, [t.palette, t.type, t.density]);
+
+  // Ao carregar: se há token guardado, reconstrói a sessão via GET /auth/me.
+  React.useEffect(() => {
+    if (!window.api.getToken()) return;
+    let ativo = true;
+    window.api
+      .me()
+      .then((eu) => {
+        if (ativo) {
+          setSession({
+            name: eu.nome,
+            email: eu.email,
+            role: eu.is_locador ? "landlord" : "client",
+          });
+        }
+      })
+      .catch((err) => {
+        // Só descarta o token se ele for realmente inválido/expirado (401).
+        // Erro de rede/CORS/servidor: mantém o token para a próxima tentativa.
+        if (err.status === 401) window.api.clearToken();
+      })
+      .finally(() => ativo && setRestoring(false));
+    return () => { ativo = false; };
+  }, []);
 
   const navigate = (next) => {
     setView(next);
@@ -83,6 +109,7 @@ const App = () => {
   };
 
   const handleSignOut = () => {
+    window.api.clearToken();
     setSession(null);
     navigate("home");
     showToast("Sessão encerrada");
@@ -98,6 +125,14 @@ const App = () => {
     setOwnListings((prev) => [{ ...listing }, ...prev]);
     showToast("Imóvel publicado!");
   };
+
+  if (restoring) {
+    return (
+      <div className="app" style={{ alignItems: "center", justifyContent: "center" }}>
+        <span className="spinner" style={{ width: 28, height: 28, color: "var(--accent)" }} />
+      </div>
+    );
+  }
 
   return (
     <div className="app" data-screen-label={`AlugaAlegre / ${view}`}>
