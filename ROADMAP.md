@@ -93,7 +93,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
   - [X] **Back — fotos**: `AnuncioCreate` recebe a lista de fotos
         (`url` + flag de capa) e grava na tabela `foto` (as URLs vêm do
         Supabase Storage)
-  - [ ] **Front — api.js**: `getTipos()`, `getComodidades()` e ajustar
+  - [X] **Front — api.js**: `getTipos()`, `getComodidades()` e ajustar
         `criarImovel` para o novo contrato (endereço + fotos)
   - [ ] **Front — form**: carregar tipos/comodidades da API e adicionar os
         campos que faltam (rua, número, CEP)

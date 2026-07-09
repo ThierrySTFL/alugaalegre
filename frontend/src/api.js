@@ -92,7 +92,16 @@ const api = {
   listarImoveis: (filtros = {}) => request("GET", "/imoveis", { query: filtros }),
   detalheImovel: (id) => request("GET", `/imoveis/${id}`),
 
+  // --- referências (para o form de publicar) ---
+  getTipos: () => request("GET", "/tipos"), // [{ idtipo, nome }]
+  getComodidades: () => request("GET", "/comodidades"), // [{ idcomodidade, nome }]
+
   // --- imóveis (autenticado) ---
+  // dados: {
+  //   idtipo, titulo, preco, descricao, quartos, banheiros, area,
+  //   endereco: { rua, numero, bairro, cep, cidade, uf },
+  //   comodidade_ids: [int], fotos: [{ url, descricao?, capa }]
+  // }
   criarImovel: (dados) => request("POST", "/imoveis", { body: dados, auth: true }),
   editarImovel: (id, dados) => request("PATCH", `/imoveis/${id}`, { body: dados, auth: true }),
   excluirImovel: (id) => request("DELETE", `/imoveis/${id}`, { auth: true }),
