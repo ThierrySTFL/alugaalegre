@@ -35,6 +35,7 @@ const AddProperty = ({ navigate, onCreate }) => {
   });
   const [errors, setErrors] = React.useState({});
   const [publishing, setPublishing] = React.useState(false);
+  const [pubError, setPubError] = React.useState(null);
 
   // Referências (tipos / comodidades) carregadas da API.
   const [tipos, setTipos] = React.useState([]);
@@ -150,28 +151,42 @@ const AddProperty = ({ navigate, onCreate }) => {
       return { ...d, photos: d.photos.filter((p) => p.id !== id) };
     });
 
-  const publish = () => {
+  const publish = async () => {
     setPublishing(true);
-    setTimeout(() => {
-      onCreate({
-        id: `p-new-${Date.now()}`,
-        title: data.title,
-        type: tipoNome(data.idtipo),
-        city: data.city,
-        neighborhood: data.neighborhood,
-        price: parseInt(data.price, 10),
-        bedrooms: data.bedrooms,
-        bathrooms: data.bathrooms,
-        area: parseInt(data.area, 10),
-        amenities: data.comodidadeIds.map(comodidadeNome).filter(Boolean),
-        photoTags: data.photos.map((p) => p.url).filter(Boolean),
-        description: data.description,
-        desc: data.description.slice(0, 60),
-        status: "active",
-        landlord: { name: window.DATA.DEMO_LANDLORD, phone: "+55 11 98765-4321", since: "2023", listings: 5 },
+    setPubError(null);
+    try {
+      const [cidade, uf] = data.city.split(",").map((s) => s.trim());
+      const fotos = data.photos
+        .filter((p) => p.url && !p.error)
+        .map((p, i) => ({ url: p.url, capa: i === 0 }));
+
+      const criado = await window.api.criarImovel({
+        idtipo: data.idtipo,
+        titulo: data.title,
+        preco: parseFloat(data.price),
+        descricao: data.description,
+        quartos: data.bedrooms,
+        banheiros: data.bathrooms,
+        area: parseFloat(data.area),
+        comodidade_ids: data.comodidadeIds,
+        endereco: {
+          rua: data.rua,
+          numero: parseInt(data.numero, 10),
+          bairro: data.neighborhood,
+          cep: data.cep,
+          cidade,
+          uf: uf || "",
+        },
+        fotos,
       });
+
+      onCreate?.(window.adaptAnuncio(criado));
       navigate("dashboard");
-    }, 900);
+    } catch (err) {
+      setPubError(err.message || "Não foi possível publicar o imóvel.");
+    } finally {
+      setPublishing(false);
+    }
   };
 
   const renderStep = () => {
@@ -446,6 +461,8 @@ const AddProperty = ({ navigate, onCreate }) => {
             Você pode pausar a qualquer momento pelo painel.
           </div>
         </div>
+
+        {pubError && <div className="err" style={{ marginTop: 16, fontSize: 13 }}>{pubError}</div>}
       </div>
     );
   };
