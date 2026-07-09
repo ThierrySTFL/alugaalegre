@@ -42,7 +42,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 - [X] Criar pasta `backend/` com FastAPI + SQLAlchemy + `.env`
 - [X] Modelos SQLAlchemy espelhando as tabelas do schema
-- [ ] Hash de senha com `passlib[bcrypt]` (duas funções: `hash_senha` e
+- [X] Hash de senha com `passlib[bcrypt]` (duas funções: `hash_senha` e
       `verificar_senha`, bem diretas) e geração/validação de JWT próprio
       com `python-jose`
 - [ ] Endpoints, nesta ordem (do mais simples pro mais complexo):
