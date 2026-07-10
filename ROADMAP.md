@@ -122,6 +122,16 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 ## Etapa 5 — Deploy · ~1 dia
 
+- [ ] **Preparar o banco de produção** (um banco novo/limpo não vem pronto — a
+      config abaixo não está no schema e precisa ser refeita à mão; ver Notas):
+  - [ ] Aplicar o `db/schema.sql` no banco novo (cria as 15 tabelas)
+  - [ ] Semear os dados de referência: `tipo` (5: Apartamento, Casa, Kitnet,
+        Sobrado, Sítio) e `comodidade` (10: Wi-Fi, Garagem, Mobiliado, Quintal,
+        Aceita pets, Ar-condicionado, Área de serviço, Portaria, Churrasqueira,
+        Próximo à UFES). **Sem isso, publicar imóvel falha** (o form fica sem opções)
+  - [ ] Criar o bucket `fotos-imoveis` **e** aplicar a policy de Storage de
+        `INSERT` para `anon, authenticated` no bucket (a leitura já é pública via
+        bucket public). **Sem a policy o upload de foto dá `403` (RLS)**
 - [ ] Backend no **Railway** ou **Render** (free tier, deploy por git push)
 - [ ] Front no **Vercel** ou **Netlify** (`npm run build` + pasta `dist`)
 - [ ] CORS: o `CORSMiddleware` já foi ligado na Etapa 3; aqui só adicionar
@@ -172,3 +182,12 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 - **Senha**: a coluna `senha` da tabela pessoa passa a guardar o hash
   bcrypt de verdade (hoje no `data.jsx` é uma string fixa tipo
   `"hash_hs2022"`, não é hash de nada). Nunca guardar senha em texto puro.
+- **Estado do banco / drift (2026-07-10)**: ao rodar local, o banco em nuvem
+  (Supabase) estava com uma versão **antiga** do schema aplicada (faltavam
+  `contato`, `favorito`, `endereco.numero`, `denuncia.status`). O `db/schema.sql`
+  do repo, porém, **está completo e correto** — é a fonte da verdade; foi o banco
+  que ficou pra trás, não o arquivo. Reconciliado à mão na sessão. **TODO antes do
+  deploy**: versionar o que ainda vive só na nuvem — um `db/seed_referencia.sql`
+  (tipos/comodidades) e um `db/storage_policies.sql` (policy de INSERT do bucket) —
+  para que a "Preparar o banco de produção" da Etapa 5 seja reproduzível sem
+  redescobrir esses passos.
