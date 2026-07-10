@@ -92,7 +92,14 @@ const App = () => {
           else applyFavoriteToggle(id, false);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Falha silenciosa na sincronização de fundo, exceto quando havia um
+        // favorito pendente de login — aí o usuário fez uma ação explícita
+        // (clicou favoritar) e precisa saber que ela não foi concluída.
+        if (!ativo || favoriteAfterAuth == null) return;
+        setFavoriteAfterAuth(null);
+        showToast("Não foi possível favoritar o imóvel. Tente de novo.");
+      });
     return () => { ativo = false; };
   }, [session]);
 
