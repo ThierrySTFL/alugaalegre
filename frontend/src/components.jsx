@@ -82,14 +82,14 @@ const Nav = ({ view, navigate, session, onAuth, onSignOut }) => {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {session ? (
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-              <span className="mono muted">{session.role === "landlord" ? "Locador" : "Cliente"}</span>
+              <span className="mono muted nav-role-label">{session.role === "landlord" ? "Locador" : "Cliente"}</span>
               <Avatar name={session.name} />
               <button className="btn ghost sm" onClick={onSignOut}>Sair</button>
             </div>
           ) : (
             <>
               <button className="btn ghost sm" onClick={() => onAuth(null)}>Entrar</button>
-              <button className="btn sm" onClick={() => onAuth("landlord")}>Anunciar imóvel</button>
+              <button className="btn sm nav-cta-landlord" onClick={() => onAuth("landlord")}>Anunciar imóvel</button>
             </>
           )}
         </div>
@@ -121,7 +121,7 @@ const Footer = () => (
           Aluguel direto entre locador e locatário, sem intermediários.
         </p>
       </div>
-      <div style={{ display: "flex", gap: 56, fontSize: 13 }}>
+      <div style={{ display: "flex", gap: 40, rowGap: 24, fontSize: 13, flexWrap: "wrap" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           <span className="mono muted">Locador</span>
           <a className="link">Como anunciar</a>
@@ -142,7 +142,7 @@ const Footer = () => (
         </div>
       </div>
     </div>
-    <div className="container" style={{ marginTop: 40, paddingTop: 20, borderTop: "1px solid var(--line)", display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--ink-3)" }}>
+    <div className="container" style={{ marginTop: 40, paddingTop: 20, borderTop: "1px solid var(--line)", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 12, color: "var(--ink-3)" }}>
       <span>© 2026 AlugaAlegre — todos os direitos reservados.</span>
       <span className="mono">v0.1 · protótipo</span>
     </div>

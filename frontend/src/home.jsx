@@ -100,7 +100,7 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
     <main>
       {/* Hero */}
       <section className="container" style={{ padding: "56px 32px 24px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1.1fr 1fr", gap: 56, alignItems: "start" }}>
+        <div className="grid-hero">
           <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
             <span className="mono" style={{ color: "var(--accent)" }}>● Aluguel direto, sem intermediário</span>
             <h1 style={{ fontSize: "clamp(40px, 4.6vw, 64px)", lineHeight: 1.02, marginTop: 16, letterSpacing: "-0.03em", textWrap: "balance" }}>
@@ -167,7 +167,7 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
 
       {/* Search bar */}
       <section className="container" style={{ marginTop: 32 }}>
-        <div className="card" style={{ padding: 8, display: "flex", alignItems: "center", gap: 8, borderColor: "var(--ink)" }}>
+        <div className="card searchbar" style={{ padding: 8, borderColor: "var(--ink)" }}>
           <div style={{ flex: 1, position: "relative" }}>
             <Icon name="search" size={16} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--ink-3)" }} />
             <input
@@ -193,7 +193,7 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
         </div>
 
         {showFilters &&
-        <div className="card" style={{ marginTop: 12, padding: 24, display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1.6fr auto", gap: 18, alignItems: "end" }}>
+        <div className="card grid-filters" style={{ marginTop: 12, padding: 24 }}>
             <div className="field">
               <label>Cidade</label>
               <select className="select" value={city} onChange={(e) => setCity(e.target.value)}>
@@ -271,7 +271,7 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
             <button className="btn ghost sm" style={{ marginTop: 16 }} onClick={clearAll}>Limpar filtros</button>
           </div>
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 36, rowGap: 48 }}>
+          <div className="grid-results">
             {listings.map((l) => (
               <ListingCard
                 key={l.id}
@@ -287,10 +287,9 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
 
       {/* Call to action — locador */}
       <section className="container" style={{ marginTop: 96 }}>
-        <div style={{
+        <div className="grid-cta" style={{
           background: "var(--ink)", color: "var(--bg)",
-          borderRadius: "var(--radius-lg)", padding: "56px 56px",
-          display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 48, alignItems: "center"
+          borderRadius: "var(--radius-lg)",
         }}>
           <div>
             <span className="mono" style={{ color: "var(--sun)" }}>● Para locadores</span>

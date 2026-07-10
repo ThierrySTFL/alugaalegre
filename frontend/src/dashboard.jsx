@@ -120,7 +120,7 @@ const Dashboard = ({ session, navigate, openProperty, showToast }) => {
       </header>
 
       {/* Stats */}
-      <section style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, marginTop: 32 }}>
+      <section className="dash-stats" style={{ marginTop: 32 }}>
         {[
           { l: "Imóveis cadastrados", v: stats.total, hint: `${stats.active} ativos` },
           { l: "Contatos recebidos", v: stats.contacts, hint: "no total" },
@@ -159,32 +159,36 @@ const Dashboard = ({ session, navigate, openProperty, showToast }) => {
           </div>
         ) : (
           <div className="card" style={{ overflow: "hidden" }}>
-            {/* Table head */}
-            <div style={{
-              display: "grid", gridTemplateColumns: "minmax(320px, 2.4fr) 1fr 0.8fr 0.8fr 40px",
-              padding: "14px 20px", borderBottom: "1px solid var(--line)",
-              fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--font-mono)",
-              textTransform: "uppercase", letterSpacing: "0.06em",
-            }}>
-              <span>Imóvel</span>
-              <span>Localização</span>
-              <span>Preço</span>
-              <span>Status</span>
-              <span></span>
+            {/* Em telas estreitas essa grade não cabe — em vez de espremer as
+                colunas, o card rola na horizontal (a página nunca rola). */}
+            <div className="table-scroll">
+              {/* Table head */}
+              <div style={{
+                display: "grid", gridTemplateColumns: "minmax(320px, 2.4fr) 1fr 0.8fr 0.8fr 40px",
+                padding: "14px 20px", borderBottom: "1px solid var(--line)",
+                fontSize: 11, color: "var(--ink-3)", fontFamily: "var(--font-mono)",
+                textTransform: "uppercase", letterSpacing: "0.06em",
+              }}>
+                <span>Imóvel</span>
+                <span>Localização</span>
+                <span>Preço</span>
+                <span>Status</span>
+                <span></span>
+              </div>
+              {filtered.map((l) => (
+                <DashboardRow
+                  key={l.id}
+                  listing={l}
+                  busy={busyId === l.id}
+                  menuOpen={menuOpen === l.id}
+                  setMenuOpen={(v) => setMenuOpen(v ? l.id : null)}
+                  onEdit={() => { setEditing(l); setMenuOpen(null); }}
+                  onToggleStatus={() => toggleStatus(l)}
+                  onDelete={() => deleteListing(l)}
+                  onView={() => openProperty(l)}
+                />
+              ))}
             </div>
-            {filtered.map((l) => (
-              <DashboardRow
-                key={l.id}
-                listing={l}
-                busy={busyId === l.id}
-                menuOpen={menuOpen === l.id}
-                setMenuOpen={(v) => setMenuOpen(v ? l.id : null)}
-                onEdit={() => { setEditing(l); setMenuOpen(null); }}
-                onToggleStatus={() => toggleStatus(l)}
-                onDelete={() => deleteListing(l)}
-                onView={() => openProperty(l)}
-              />
-            ))}
           </div>
         )}
       </section>
@@ -203,11 +207,13 @@ const Dashboard = ({ session, navigate, openProperty, showToast }) => {
                 display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
                 padding: "16px 20px", borderBottom: i < arr.length - 1 ? "1px solid var(--line)" : "none",
               }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
                   <Avatar name={c.cliente_nome} size={36} />
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 500 }}>{c.cliente_nome}</div>
-                    <div className="muted" style={{ fontSize: 12 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {c.cliente_nome}
+                    </div>
+                    <div className="muted" style={{ fontSize: 12, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                       Se interessou por "{c.anuncio_titulo || "imóvel removido"}"
                     </div>
                   </div>

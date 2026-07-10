@@ -320,6 +320,61 @@
     border: 1px dashed var(--line-2); border-radius: var(--radius-lg);
     color: var(--ink-3);
   }
+
+  /* ── Responsividade ──────────────────────────────────────────────────── */
+  /* Grades que precisam colapsar em telas menores viram classe (em vez de
+     inline) justamente pra poder sobrescrever via @media sem brigar com a
+     especificidade de um style inline, que sempre venceria uma regra comum. */
+  .grid-hero { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: start; }
+  .grid-filters { display: grid; grid-template-columns: 1fr 1fr 1fr 1.6fr auto; gap: 18px; align-items: end; }
+  .searchbar { display: flex; align-items: center; gap: 8px; }
+  .grid-results { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; row-gap: 48px; }
+  .grid-cta { display: grid; grid-template-columns: 1.5fr 1fr; gap: 48px; align-items: center; padding: 56px; }
+
+  .detail-gallery {
+    display: grid; grid-template-columns: 1.6fr 1fr 1fr; grid-template-rows: repeat(2, 1fr);
+    gap: 8px; aspect-ratio: 16 / 9; max-height: 540px; border-radius: var(--radius-lg); overflow: hidden;
+  }
+  .detail-gallery-cover-badge { display: none; }
+  .detail-layout { display: grid; grid-template-columns: 1.6fr 1fr; gap: 64px; align-items: start; }
+  .detail-sidebar { position: sticky; top: 88px; }
+  .detail-specs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; }
+
+  /* Tabela do painel: em vez de espremer as colunas, rola na horizontal
+     dentro do próprio card — a página nunca deve rolar de lado. */
+  .table-scroll { overflow-x: auto; }
+  .dash-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+  @media (max-width: 860px) {
+    .container { padding: 0 20px; }
+    .nav-links { display: none; }
+
+    .grid-hero { grid-template-columns: 1fr; gap: 32px; }
+    .grid-filters { grid-template-columns: 1fr 1fr; }
+    .grid-results { grid-template-columns: repeat(2, 1fr); }
+    .grid-cta { grid-template-columns: 1fr; gap: 28px; padding: 40px 28px; }
+
+    .detail-gallery { grid-template-columns: 1fr; grid-template-rows: none; aspect-ratio: 4 / 3; max-height: none; }
+    .detail-gallery > div:not(.detail-gallery-cover) { display: none; }
+    .detail-gallery-cover-badge { display: flex; }
+    .detail-layout { grid-template-columns: 1fr; gap: 32px; }
+    .detail-sidebar { position: static; top: auto; }
+    .detail-specs { grid-template-columns: repeat(2, 1fr); row-gap: 20px; }
+  }
+
+  @media (max-width: 560px) {
+    .grid-filters { grid-template-columns: 1fr; }
+    .grid-results { grid-template-columns: 1fr; }
+    .dash-stats { grid-template-columns: 1fr; }
+    .searchbar { flex-wrap: wrap; height: auto; }
+    .searchbar .div { display: none; }
+    .searchbar > button { flex: 1; }
+  }
+
+  @media (max-width: 480px) {
+    .nav-role-label { display: none; }
+    .nav-cta-landlord { display: none; }
+  }
 </style>
 </head>
 <body>

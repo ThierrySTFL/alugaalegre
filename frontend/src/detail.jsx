@@ -47,19 +47,11 @@ const Detail = ({ listing, navigate, onContact, favorited, favoritePending = fal
 
       {/* Gallery */}
       <section className="container">
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1.6fr 1fr 1fr",
-          gridTemplateRows: "repeat(2, 1fr)",
-          gap: 8,
-          aspectRatio: "16 / 9",
-          maxHeight: 540,
-          borderRadius: "var(--radius-lg)",
-          overflow: "hidden",
-        }}>
+        <div className="detail-gallery">
           {listing.photoTags.slice(0, 5).map((tag, i) => (
             <div
               key={i}
+              className={i === 0 ? "detail-gallery-cover" : undefined}
               onClick={() => { setActivePhoto(i); setGalleryOpen(true); }}
               style={{
                 cursor: "pointer",
@@ -78,16 +70,29 @@ const Detail = ({ listing, navigate, onContact, favorited, favoritePending = fal
                   +{listing.photoTags.length - 5} fotos
                 </div>
               )}
+              {/* Só aparece no mobile (a galeria colapsa pra 1 foto só) —
+                  sem isso, o "tem mais fotos" some junto com os outros tiles. */}
+              {i === 0 && listing.photoTags.length > 1 && (
+                <div className="detail-gallery-cover-badge" style={{
+                  position: "absolute", bottom: 8, left: 8,
+                  alignItems: "center", gap: 6,
+                  background: "rgba(22,22,22,0.72)", color: "#fff",
+                  fontSize: 12, fontWeight: 500,
+                  padding: "6px 10px", borderRadius: 999,
+                }}>
+                  <Icon name="grid" size={13} /> Ver todas as {listing.photoTags.length} fotos
+                </div>
+              )}
             </div>
           ))}
         </div>
       </section>
 
       {/* Two-column content */}
-      <section className="container" style={{ marginTop: 48, display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 64, alignItems: "start" }}>
+      <section className="container detail-layout" style={{ marginTop: 48 }}>
         <div>
           {/* Quick specs */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0, padding: "24px 0", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
+          <div className="detail-specs" style={{ padding: "24px 0", borderTop: "1px solid var(--line)", borderBottom: "1px solid var(--line)" }}>
             {[
               { i: "bed", l: "Quartos", v: listing.bedrooms },
               { i: "bath", l: "Banheiros", v: listing.bathrooms },
@@ -126,8 +131,9 @@ const Detail = ({ listing, navigate, onContact, favorited, favoritePending = fal
 
         </div>
 
-        {/* Sticky sidebar — contact */}
-        <aside style={{ position: "sticky", top: 88 }}>
+        {/* Sticky sidebar — contact (deixa de ser sticky no mobile, onde a
+            coluna vira 1 e "grudar" o card faria menos sentido) */}
+        <aside className="detail-sidebar">
           <div className="card" style={{ padding: 24 }}>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between" }}>
               <span style={{ fontFamily: "var(--font-display)", fontSize: 32, fontWeight: 600 }}>

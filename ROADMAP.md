@@ -113,7 +113,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 - [X] **Fotos reais**: trocar o componente `Photo` (placeholder de texto)
       por `<img>` com as URLs do Storage
-- [ ] **Responsividade**: não existe nenhum `@media` no projeto — os grids
+- [X] **Responsividade**: não existe nenhum `@media` no projeto — os grids
       de 3 colunas quebram no celular. Prioridade: home → detalhe → painel
 - [ ] Ligar o "Ordenar por" da home (o `<select>` existe mas não tem `onChange`)
 - [ ] Remover o painel de Tweaks do build de produção (é ferramenta de design)
