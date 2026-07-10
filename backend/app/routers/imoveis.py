@@ -29,7 +29,7 @@ from app.schemas import (
     ContatoOut,
     EnderecoOut,
     FotoOut,
-    LocadorOut,
+    LocadorPublicOut,
 )
 
 router = APIRouter(tags=["imoveis"])
@@ -60,10 +60,9 @@ def _anuncio_to_out(anuncio: Anuncio) -> AnuncioOut:
             for f in anuncio.fotos
         ],
         comodidades=[ac.comodidade.nome for ac in anuncio.comodidades],
-        locador=LocadorOut(
+        locador=LocadorPublicOut(
             idlocador=anuncio.locador.idlocador,
             nome=anuncio.locador.pessoa.nome,
-            telefone=anuncio.locador.telefone,
             desde=anuncio.locador.desde,
             mediaavaliacao=anuncio.locador.mediaavaliacao,
         ),

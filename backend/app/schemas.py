@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 # ---------- Auth ----------
@@ -11,10 +11,24 @@ class PessoaCadastro(BaseModel):
     email: str
     senha: str = Field(min_length=6)
 
+    @field_validator("senha")
+    @classmethod
+    def senha_dentro_limite(cls, senha: str) -> str:
+        if len(senha) > 32 or len(senha.encode("utf-8")) > 72:
+            raise ValueError("Senha muito longa. Use no máximo 32 caracteres.")
+        return senha
+
 
 class PessoaLogin(BaseModel):
     email: str
     senha: str
+
+    @field_validator("senha")
+    @classmethod
+    def senha_dentro_limite(cls, senha: str) -> str:
+        if len(senha) > 32 or len(senha.encode("utf-8")) > 72:
+            raise ValueError("Senha muito longa. Use no máximo 32 caracteres.")
+        return senha
 
 
 class Token(BaseModel):
@@ -76,6 +90,13 @@ class LocadorOut(BaseModel):
     mediaavaliacao: float
 
 
+class LocadorPublicOut(BaseModel):
+    idlocador: int
+    nome: str
+    desde: date
+    mediaavaliacao: float
+
+
 class AnuncioOut(BaseModel):
     idanuncio: int
     titulo: Optional[str] = None
@@ -90,7 +111,7 @@ class AnuncioOut(BaseModel):
     endereco: EnderecoOut
     fotos: List[FotoOut] = []
     comodidades: List[str] = []
-    locador: LocadorOut
+    locador: LocadorPublicOut
 
 
 class EnderecoCreate(BaseModel):
