@@ -106,8 +106,8 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 - [X] **Painel**: usar `GET /meus-imoveis` e `GET /meus-contatos`; ligar
       editar/pausar/excluir nos endpoints (hoje "Editar" é um `alert()`)
 - [X] **Favoritos**: persistir via API (hoje é um `Set` em memória)
-- [ ] Adicionar estados de loading e erro (hoje não existem — nada é
-      assíncrono)
+- [X] Adicionar estados de loading e erro: home, auth, contato, publicar
+      imóvel, painel e favoritos têm feedback/bloqueio de ações assíncronas.
 
 ## Etapa 4 — Acabamento do front · ~2-3 dias
 

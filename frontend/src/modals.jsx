@@ -335,7 +335,6 @@ const AuthModal = ({ onClose, onAuth, preRole = null }) => {
 
   const finalizar = (name, email, role) => {
     onAuth({ name, email, role });
-    onClose();
   };
 
   const handleResult = (r) => {

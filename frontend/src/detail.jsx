@@ -1,7 +1,7 @@
 import React from "react";
 // Property detail page with photo gallery
 
-const Detail = ({ listing, navigate, onContact, favorited, toggleFavorite }) => {
+const Detail = ({ listing, navigate, onContact, favorited, favoritePending = false, toggleFavorite }) => {
   const [activePhoto, setActivePhoto] = React.useState(0);
   const [galleryOpen, setGalleryOpen] = React.useState(false);
 
@@ -30,10 +30,14 @@ const Detail = ({ listing, navigate, onContact, favorited, toggleFavorite }) => 
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
-          <button className="btn ghost sm" onClick={() => toggleFavorite(listing.id)}>
-            <Icon name={favorited ? "heart-fill" : "heart"} size={14}
-                  style={{ color: favorited ? "var(--accent)" : "currentColor" }} />
-            {favorited ? "Favoritado" : "Favoritar"}
+          <button className="btn ghost sm" onClick={() => toggleFavorite(listing.id)} disabled={favoritePending}>
+            {favoritePending ? (
+              <span className="spinner" style={{ width: 14, height: 14, color: "var(--accent)" }} />
+            ) : (
+              <Icon name={favorited ? "heart-fill" : "heart"} size={14}
+                    style={{ color: favorited ? "var(--accent)" : "currentColor" }} />
+            )}
+            {favoritePending ? "Atualizando…" : favorited ? "Favoritado" : "Favoritar"}
           </button>
           <button className="btn ghost sm">
             <Icon name="upload" size={14} /> Compartilhar

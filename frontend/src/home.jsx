@@ -37,7 +37,7 @@ const adaptAnuncio = (a) => ({
 });
 window.adaptAnuncio = adaptAnuncio;
 
-const Home = ({ navigate, openProperty, favorites, toggleFavorite, session, onAuth }) => {
+const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavorite, session, onAuth }) => {
   // Já logado como locador → direto pro painel; senão, abre o AuthModal.
   const irParaLocador = () => (session?.role === "landlord" ? navigate("dashboard") : onAuth("landlord"));
 
@@ -276,7 +276,8 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite, session, onAu
                 listing={l}
                 onOpen={openProperty}
                 onFavorite={toggleFavorite}
-                favorited={favorites.has(l.id)} />
+                favorited={favorites.has(l.id)}
+                favoritePending={pendingFavorites.has(l.id)} />
             ))}
           </div>
         )}

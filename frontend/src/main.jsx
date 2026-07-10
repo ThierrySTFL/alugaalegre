@@ -212,6 +212,7 @@ const App = () => {
           navigate={navigate}
           openProperty={openProperty}
           favorites={favorites}
+          pendingFavorites={pendingFavorites}
           toggleFavorite={toggleFavorite}
           session={session}
           onAuth={openAuth}
@@ -223,6 +224,7 @@ const App = () => {
           navigate={navigate}
           onContact={handleContact}
           favorited={favorites.has(currentListing.id)}
+          favoritePending={pendingFavorites.has(currentListing.id)}
           toggleFavorite={toggleFavorite}
         />
       )}

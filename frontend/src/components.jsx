@@ -162,7 +162,7 @@ const useToast = () => {
 };
 
 // Listing card (editorial, photo-forward)
-const ListingCard = ({ listing, onOpen, onFavorite, favorited }) => (
+const ListingCard = ({ listing, onOpen, onFavorite, favorited, favoritePending = false }) => (
   <article
     style={{ display: "flex", flexDirection: "column", gap: 12, cursor: "pointer" }}
     onClick={() => onOpen(listing)}
@@ -172,14 +172,21 @@ const ListingCard = ({ listing, onOpen, onFavorite, favorited }) => (
       <button
         className="btn icon"
         onClick={(e) => { e.stopPropagation(); onFavorite(listing.id); }}
+        disabled={favoritePending}
         style={{
           position: "absolute", top: 12, right: 12,
           background: "rgba(253, 252, 249, 0.92)", color: "var(--ink)",
           border: "none", width: 36, height: 36, borderRadius: "50%",
+          opacity: favoritePending ? 0.7 : 1,
+          cursor: favoritePending ? "wait" : "pointer",
         }}
       >
-        <Icon name={favorited ? "heart-fill" : "heart"} size={16}
-              style={{ color: favorited ? "var(--accent)" : "var(--ink)" }} />
+        {favoritePending ? (
+          <span className="spinner" style={{ width: 16, height: 16, color: "var(--accent)" }} />
+        ) : (
+          <Icon name={favorited ? "heart-fill" : "heart"} size={16}
+                style={{ color: favorited ? "var(--accent)" : "var(--ink)" }} />
+        )}
       </button>
       <span className="pill sun" style={{ position: "absolute", top: 12, left: 12 }}>
         {listing.type}

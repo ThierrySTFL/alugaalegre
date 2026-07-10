@@ -97,6 +97,41 @@ const AddProperty = ({ navigate }) => {
     return Object.keys(e).length === 0;
   };
 
+  const validatePublish = () => {
+    const e = {};
+    let firstInvalidStep = null;
+    const mark = (stepId) => {
+      if (firstInvalidStep == null) firstInvalidStep = stepId;
+    };
+
+    if (!data.idtipo) { e.type = "Escolha o tipo do imóvel."; mark(1); }
+    if (!data.city) { e.city = "Escolha uma cidade."; mark(1); }
+    if (!data.neighborhood.trim()) { e.neighborhood = "Informe o bairro."; mark(1); }
+    if (!data.rua.trim()) { e.rua = "Informe a rua."; mark(1); }
+    if (!String(data.numero).trim()) { e.numero = "Nº obrigatório."; mark(1); }
+    if (data.cep.replace(/\D/g, "").length !== 8) { e.cep = "CEP inválido."; mark(1); }
+
+    if (!data.title.trim() || data.title.length < 10) { e.title = "Título com pelo menos 10 caracteres."; mark(2); }
+    if (!data.description.trim() || data.description.length < 30) { e.description = "Descrição com pelo menos 30 caracteres."; mark(2); }
+    if (!data.price || parseInt(data.price, 10) < 100) { e.price = "Informe um preço válido."; mark(2); }
+    if (!data.area || parseInt(data.area, 10) < 10) { e.area = "Informe a área em m²."; mark(2); }
+
+    if (data.photos.some((p) => p.uploading)) {
+      e.photos = "Aguarde o upload das fotos terminar.";
+      mark(3);
+    } else if (data.photos.filter((p) => p.url && !p.error).length < 3) {
+      e.photos = "Adicione pelo menos 3 fotos.";
+      mark(3);
+    }
+
+    setErrors(e);
+    if (firstInvalidStep != null) {
+      setStep(firstInvalidStep);
+      return false;
+    }
+    return true;
+  };
+
   const next = () => {
     if (!validateStep()) return;
     setStep((s) => Math.min(4, s + 1));
@@ -152,6 +187,7 @@ const AddProperty = ({ navigate }) => {
     });
 
   const publish = async () => {
+    if (publishing || !validatePublish()) return;
     setPublishing(true);
     setPubError(null);
     try {
@@ -498,7 +534,7 @@ const AddProperty = ({ navigate }) => {
         {/* Footer nav */}
         <div className="div" style={{ margin: "32px 0 20px" }}></div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <button className="btn ghost" onClick={step === 1 ? () => navigate("dashboard") : back}>
+          <button className="btn ghost" onClick={step === 1 ? () => navigate("dashboard") : back} disabled={publishing}>
             <Icon name="arrow-left" size={14} /> {step === 1 ? "Cancelar" : "Voltar"}
           </button>
           <span className="mono muted">Passo {step} de {STEP_DEFS.length}</span>
