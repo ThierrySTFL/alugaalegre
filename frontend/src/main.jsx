@@ -2,7 +2,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import "./tweaks-panel.jsx";
 import "./supabase.jsx";
 import "./api.js";
 import "./data.jsx";
@@ -14,12 +13,10 @@ import "./dashboard.jsx";
 import "./add-property.jsx";
 import "./auth.jsx";
 
-// App shell — view switcher + tweaks panel
+// App shell — view switcher
 
 const { Home, Detail, Dashboard, AddProperty, AuthModal, ContactModal,
         Nav, Footer, useToast } = window;
-
-const TWEAK_DEFAULTS = window.__TWEAKS__;
 
 const App = () => {
   const [view, setView] = React.useState("home"); // home / detail / dashboard / add
@@ -38,14 +35,6 @@ const App = () => {
   // id que o usuário tentou favoritar sem estar logado; retomado após o login.
   const [favoriteAfterAuth, setFavoriteAfterAuth] = React.useState(null);
   const [toast, showToast] = useToast();
-
-  const [t, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
-
-  React.useEffect(() => {
-    document.documentElement.dataset.palette = t.palette;
-    document.documentElement.dataset.type = t.type;
-    document.documentElement.dataset.density = t.density;
-  }, [t.palette, t.type, t.density]);
 
   // Ao carregar: se há token guardado, reconstrói a sessão via GET /auth/me.
   React.useEffect(() => {
@@ -268,55 +257,6 @@ const App = () => {
       )}
 
       {toast}
-
-      {/* Tweaks panel */}
-      <window.TweaksPanel title="Tweaks">
-        <window.TweakSection label="Paleta">
-          <window.TweakRadio
-            label="Tema"
-            value={t.palette}
-            onChange={(v) => setTweak("palette", v)}
-            options={[
-              { value: "navy", label: "Navy" },
-              { value: "forest", label: "Verde" },
-              { value: "warm", label: "Terra" },
-              { value: "mono", label: "Mono" },
-            ]}
-          />
-        </window.TweakSection>
-        <window.TweakSection label="Tipografia">
-          <window.TweakRadio
-            label="Display"
-            value={t.type}
-            onChange={(v) => setTweak("type", v)}
-            options={[
-              { value: "geometric", label: "Geom." },
-              { value: "editorial", label: "Serif" },
-              { value: "humanist", label: "Human." },
-            ]}
-          />
-        </window.TweakSection>
-        <window.TweakSection label="Densidade">
-          <window.TweakRadio
-            label="Espaçamento"
-            value={t.density}
-            onChange={(v) => setTweak("density", v)}
-            options={[
-              { value: "compact", label: "Compacto" },
-              { value: "comfortable", label: "Padrão" },
-              { value: "spacious", label: "Solto" },
-            ]}
-          />
-        </window.TweakSection>
-        <window.TweakSection label="Atalhos de navegação">
-          <window.TweakButton label="→ Home pública" onClick={() => navigate("home")} />
-          <window.TweakButton label="→ AuthModal (qualquer)" onClick={() => setShowAuth("any")} />
-          <window.TweakButton label="→ Login + dashboard (Marina)" onClick={() => handleAuth({ name: "Marina Toledo", email: "marina@gmail.com", role: "landlord" })} />
-          <window.TweakButton label="→ Login como cliente (Lucas)" onClick={() => handleAuth({ name: "Lucas Ferreira", email: "lucas@gmail.com", role: "client" })} />
-          <window.TweakButton label="→ Adicionar imóvel" onClick={() => { if (!session) handleAuth({ name: "Marina Toledo", email: "marina@gmail.com", role: "landlord" }); setTimeout(() => navigate("add"), 50); }} />
-          <window.TweakButton label="→ Detalhe do imóvel" onClick={() => openProperty(window.DATA.LISTINGS[0])} />
-        </window.TweakSection>
-      </window.TweaksPanel>
     </div>
   );
 };

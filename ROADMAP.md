@@ -116,7 +116,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 - [X] **Responsividade**: não existe nenhum `@media` no projeto — os grids
       de 3 colunas quebram no celular. Prioridade: home → detalhe → painel
 - [X] Ligar o "Ordenar por" da home (o `<select>` existe mas não tem `onChange`)
-- [ ] Remover o painel de Tweaks do build de produção (é ferramenta de design)
+- [X] Remover o painel de Tweaks do build de produção (é ferramenta de design)
 - [ ] Mapa real na página de detalhe (Leaflet + OpenStreetMap é grátis) —
       *opcional, o mapa fake em CSS segura o MVP*
 
