@@ -13,7 +13,6 @@ const Icon = ({ name, size = 16, stroke = 1.5, ...rest }) => {
     bed: <><path d="M3 18V7m18 11v-5a3 3 0 00-3-3H3" /><path d="M3 14h18M7 10V8h4v2" /></>,
     bath: <><path d="M4 11h16v2a4 4 0 01-4 4H8a4 4 0 01-4-4v-2zM6 11V6a2 2 0 012-2h1" /><path d="M9 5l2 2" /></>,
     area: <><rect x="4" y="4" width="16" height="16" rx="1" /><path d="M9 4v3M4 9h3M20 9h-3M9 20v-3" /></>,
-    map: <><path d="M9 4l-5 2v14l5-2 6 2 5-2V4l-5 2-6-2z" /><path d="M9 4v14M15 6v14" /></>,
     arrow: <path d="M5 12h14M13 6l6 6-6 6" />,
     "arrow-left": <path d="M19 12H5M11 18l-6-6 6-6" />,
     plus: <path d="M12 5v14M5 12h14" />,
