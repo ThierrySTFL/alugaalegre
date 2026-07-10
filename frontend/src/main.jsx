@@ -34,10 +34,6 @@ const App = () => {
   const [favorites, setFavorites] = React.useState(new Set());
   const [toast, showToast] = useToast();
 
-  const [ownListings, setOwnListings] = React.useState(
-    window.DATA.LISTINGS.filter((l) => l.landlord.name === window.DATA.DEMO_LANDLORD)
-  );
-
   const [t, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
 
   React.useEffect(() => {
@@ -121,11 +117,6 @@ const App = () => {
     showToast(`Contato liberado!`);
   };
 
-  const handleCreateProperty = (listing) => {
-    setOwnListings((prev) => [{ ...listing }, ...prev]);
-    showToast("Imóvel publicado!");
-  };
-
   if (restoring) {
     return (
       <div className="app" style={{ alignItems: "center", justifyContent: "center" }}>
@@ -165,9 +156,8 @@ const App = () => {
         <Dashboard
           session={session}
           navigate={navigate}
-          ownListings={ownListings}
-          setOwnListings={setOwnListings}
           openProperty={openProperty}
+          showToast={showToast}
         />
       )}
       {view === "dashboard" && !session && (
@@ -179,7 +169,7 @@ const App = () => {
         </div>
       )}
       {view === "add" && session?.role === "landlord" && (
-        <AddProperty navigate={navigate} onCreate={handleCreateProperty} />
+        <AddProperty navigate={navigate} />
       )}
 
       <Footer />

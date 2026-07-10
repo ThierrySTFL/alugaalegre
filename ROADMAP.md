@@ -103,7 +103,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
   - [X] **Front — submeter**: `publish()` chama `POST /imoveis` com
         tipo/endereço/comodidades/fotos reais, com loading e erro; ao
         concluir vai pro painel
-- [ ] **Painel**: usar `GET /meus-imoveis` e `GET /meus-contatos`; ligar
+- [X] **Painel**: usar `GET /meus-imoveis` e `GET /meus-contatos`; ligar
       editar/pausar/excluir nos endpoints (hoje "Editar" é um `alert()`)
 - [ ] **Favoritos**: persistir via API (hoje é um `Set` em memória)
 - [ ] Adicionar estados de loading e erro (hoje não existem — nada é

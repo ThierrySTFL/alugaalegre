@@ -14,7 +14,7 @@ const formatCEP = (v) => {
   return `${d.slice(0, 5)}-${d.slice(5)}`;
 };
 
-const AddProperty = ({ navigate, onCreate }) => {
+const AddProperty = ({ navigate }) => {
   const { CITIES } = window.DATA; // cidades ainda do mock (região de Alegre)
   const [step, setStep] = React.useState(1);
   const [data, setData] = React.useState({
@@ -160,7 +160,7 @@ const AddProperty = ({ navigate, onCreate }) => {
         .filter((p) => p.url && !p.error)
         .map((p, i) => ({ url: p.url, capa: i === 0 }));
 
-      const criado = await window.api.criarImovel({
+      await window.api.criarImovel({
         idtipo: data.idtipo,
         titulo: data.title,
         preco: parseFloat(data.price),
@@ -180,7 +180,6 @@ const AddProperty = ({ navigate, onCreate }) => {
         fotos,
       });
 
-      onCreate?.(window.adaptAnuncio(criado));
       navigate("dashboard");
     } catch (err) {
       setPubError(err.message || "Não foi possível publicar o imóvel.");
