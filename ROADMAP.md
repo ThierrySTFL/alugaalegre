@@ -111,7 +111,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 ## Etapa 4 — Acabamento do front · ~2-3 dias
 
-- [ ] **Fotos reais**: trocar o componente `Photo` (placeholder de texto)
+- [X] **Fotos reais**: trocar o componente `Photo` (placeholder de texto)
       por `<img>` com as URLs do Storage
 - [ ] **Responsividade**: não existe nenhum `@media` no projeto — os grids
       de 3 colunas quebram no celular. Prioridade: home → detalhe → painel

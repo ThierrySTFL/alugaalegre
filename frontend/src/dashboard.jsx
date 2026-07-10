@@ -240,7 +240,7 @@ const DashboardRow = ({ listing, busy, menuOpen, setMenuOpen, onEdit, onToggleSt
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         <div style={{ width: 72, height: 54, flexShrink: 0 }}>
-          <Photo label="" style={{ height: "100%", padding: 0 }} />
+          <Photo src={listing.coverUrl} alt={listing.title} label="" style={{ height: "100%", padding: 0 }} />
         </div>
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 14, fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>

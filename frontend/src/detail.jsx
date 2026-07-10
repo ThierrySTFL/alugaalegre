@@ -68,7 +68,7 @@ const Detail = ({ listing, navigate, onContact, favorited, favoritePending = fal
                 position: "relative",
               }}
             >
-              <Photo label={tag} style={{ height: "100%", borderRadius: 0 }} />
+              <Photo src={listing.photos[i]?.url} alt={tag} label={tag} style={{ height: "100%", borderRadius: 0 }} />
               {i === 4 && listing.photoTags.length > 5 && (
                 <div style={{
                   position: "absolute", inset: 0, background: "rgba(22,22,22,0.55)",
@@ -180,7 +180,7 @@ const Detail = ({ listing, navigate, onContact, favorited, favoritePending = fal
               </button>
             </div>
             <div style={{ padding: 24 }}>
-              <Photo label={listing.photoTags[activePhoto]} aspect="16 / 10" />
+              <Photo src={listing.photos[activePhoto]?.url} alt={listing.photoTags[activePhoto]} label={listing.photoTags[activePhoto]} aspect="16 / 10" />
               <div style={{ display: "flex", gap: 8, marginTop: 16, overflow: "auto" }}>
                 {listing.photoTags.map((t, i) => (
                   <button
@@ -192,7 +192,7 @@ const Detail = ({ listing, navigate, onContact, favorited, favoritePending = fal
                       borderRadius: 4, overflow: "hidden", background: "transparent", cursor: "pointer",
                     }}
                   >
-                    <Photo label="" style={{ height: "100%", borderRadius: 0, padding: 0 }} />
+                    <Photo src={listing.photos[i]?.url} alt={t} label="" style={{ height: "100%", borderRadius: 0, padding: 0 }} />
                   </button>
                 ))}
               </div>

@@ -51,11 +51,14 @@ const Logo = ({ onClick }) => (
   </a>
 );
 
-// Photo placeholder with striped fill + caption
-const Photo = ({ label, height = 220, aspect, style = {}, children }) => (
+// Photo: mostra a imagem real quando há `src`; senão, cai no placeholder
+// listrado com legenda (usado por dados mock e fotos decorativas).
+const Photo = ({ label, src, alt, height = 220, aspect, style = {}, children }) => (
   <div className="photo"
     style={{ height: aspect ? "auto" : height, aspectRatio: aspect, ...style }}>
-    {label && <span className="lbl">{label}</span>}
+    {src
+      ? <img src={src} alt={alt || label || ""} loading="lazy" />
+      : label && <span className="lbl">{label}</span>}
     {children}
   </div>
 );
@@ -168,7 +171,7 @@ const ListingCard = ({ listing, onOpen, onFavorite, favorited, favoritePending =
     onClick={() => onOpen(listing)}
   >
     <div style={{ position: "relative" }}>
-      <Photo label={listing.photoTags[0]} aspect="4 / 3" />
+      <Photo src={listing.coverUrl} alt={listing.title} label={listing.photoTags[0]} aspect="4 / 3" />
       <button
         className="btn icon"
         onClick={(e) => { e.stopPropagation(); onFavorite(listing.id); }}

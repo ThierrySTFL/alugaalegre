@@ -23,6 +23,8 @@ const adaptAnuncio = (a) => ({
   amenities: a.comodidades || [],
   photoTags: (a.fotos || []).map((f) => f.descricao || "Foto"),
   photos: a.fotos || [],
+  // URL da capa: a foto marcada como capa ("S") ou, na falta, a primeira.
+  coverUrl: ((a.fotos || []).find((f) => f.capa === "S") || (a.fotos || [])[0])?.url || null,
   landlord: {
     name: a.locador.nome,
     phone: formatTel(a.locador.telefone),
