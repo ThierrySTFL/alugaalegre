@@ -54,6 +54,7 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
   const [listings, setListings] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
+  const [sortBy, setSortBy] = React.useState("recent");
   // Ignora respostas obsoletas (filtro trocado antes de a anterior chegar).
   const reqId = React.useRef(0);
 
@@ -95,6 +96,19 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
     document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   const activeFilters = [city, type, bedrooms, maxPrice < 5000 ? "preço" : ""].filter(Boolean).length;
+
+  // Ordenação é só de exibição (client-side) — a API não devolve em nenhuma
+  // ordem garantida, então "recente" usa o id (maior = criado depois) como
+  // aproximação, já que dataanuncio é só uma data (sem hora) e empataria.
+  const sortedListings = React.useMemo(() => {
+    const arr = [...listings];
+    switch (sortBy) {
+      case "price-asc": return arr.sort((a, b) => a.price - b.price);
+      case "price-desc": return arr.sort((a, b) => b.price - a.price);
+      case "area": return arr.sort((a, b) => b.area - a.area);
+      default: return arr.sort((a, b) => b.id - a.id);
+    }
+  }, [listings, sortBy]);
 
   return (
     <main>
@@ -246,7 +260,7 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span className="mono muted">Ordenar</span>
-            <select className="select" style={{ width: 180, height: 36 }} defaultValue="recent">
+            <select className="select" style={{ width: 180, height: 36 }} value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
               <option value="recent">Mais recentes</option>
               <option value="price-asc">Menor preço</option>
               <option value="price-desc">Maior preço</option>
@@ -272,7 +286,7 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
           </div>
         ) : (
           <div className="grid-results">
-            {listings.map((l) => (
+            {sortedListings.map((l) => (
               <ListingCard
                 key={l.id}
                 listing={l}
