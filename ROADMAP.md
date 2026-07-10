@@ -129,8 +129,22 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
       que está realmente funcionando** — abrir o front publicado, disparar
       uma chamada real e confirmar no DevTools (aba Network) que não há erro
       de CORS e que o header `access-control-allow-origin` volta correto
-- [ ] Definir a `SECRET_KEY` do JWT como variável de ambiente em produção
-      (nunca hardcoded no código)
+- [ ] **Variáveis de ambiente** — nada de segredo hardcoded no código nem
+      commitado (`.env` está no `.gitignore`). Onde cada coisa fica:
+  - [ ] **Na Vercel** (front) — só as `VITE_*`, que são **públicas** (entram
+        no bundle; qualquer um lê no navegador). Portanto, aqui **só** o que
+        pode ser público:
+        - `VITE_API_URL` — URL do backend em produção
+        - `VITE_SUPABASE_URL`
+        - `VITE_SUPABASE_ANON_KEY` — a *anon key* é pública por design
+          (protegida por RLS no bucket). **Nunca** pôr a `service_role` key aqui.
+  - [ ] **No host do backend** (Railway/Render) — segredos, que **jamais**
+        podem ir pra Vercel/pro front:
+        - `SECRET_KEY` — chave do JWT; se vazar, tokens ficam forjáveis
+        - `DATABASE_URL` — contém a senha do Postgres
+        - `CORS_ORIGINS` — domínio do front em produção
+        - `FOTO_URL_PREFIXO` — prefixo do bucket do Storage (opcional; se
+          definido, só aceita URLs de foto vindas de lá)
 
 ---
 
@@ -145,6 +159,13 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 
 ## Notas
 
+- **Segurança (hardening já feito)**: rate limiting no `/auth` (login 10/min,
+  cadastro 5/min por IP, via `slowapi`) contra brute-force e enumeração de
+  e-mail; `GET /imoveis/{id}` só retorna anúncios com `status = "A"`;
+  `AnuncioUpdate.status` restrito a `A`/`P`; URLs de foto exigem `https://` e,
+  se `FOTO_URL_PREFIXO` estiver setado, precisam vir do bucket do Storage.
+  *Obs.: o rate limit usa storage em memória (por processo) — com vários
+  workers em produção, apontar o `Limiter` pra um Redis via `storage_uri`.*
 - **Nomenclatura**: no protótipo, `LOCATARIO` = dono do imóvel e `CLIENTE` =
   quem aluga. "Locatário" normalmente significa inquilino — conferir como
   está no `.sql` e alinhar os nomes agora, antes que vire confusão permanente.

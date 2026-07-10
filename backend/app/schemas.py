@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -131,6 +131,14 @@ class FotoCreate(BaseModel):
     descricao: Optional[str] = Field(default=None, max_length=100)
     capa: bool = False
 
+    @field_validator("url")
+    @classmethod
+    def url_deve_ser_https(cls, url: str) -> str:
+        # Só https:// — bloqueia esquemas perigosos (javascript:, data:, http:).
+        if not url.startswith("https://"):
+            raise ValueError("A URL da foto deve começar com https://")
+        return url
+
 
 class AnuncioCreate(BaseModel):
     idtipo: int
@@ -152,7 +160,8 @@ class AnuncioUpdate(BaseModel):
     quartos: Optional[int] = Field(default=None, ge=0)
     banheiros: Optional[int] = Field(default=None, ge=0)
     area: Optional[float] = Field(default=None, gt=0)
-    status: Optional[str] = Field(default=None, max_length=1)
+    # "A" = ativo, "P" = pausado — únicos valores que o front usa hoje.
+    status: Optional[Literal["A", "P"]] = None
 
 
 class ContatoOut(BaseModel):

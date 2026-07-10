@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.deps import get_current_pessoa
+from app.limiter import limiter
 from app.models import Locador, Pessoa
 from app.schemas import PessoaCadastro, PessoaLogin, PessoaMe, Token
 from app.security import criar_access_token, hash_senha, verificar_senha
@@ -10,8 +11,11 @@ from app.security import criar_access_token, hash_senha, verificar_senha
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
+# Limite baixo por IP: a resposta "e-mail já cadastrado" revela contas
+# existentes, então limitamos o cadastro para dificultar enumeração em massa.
 @router.post("/cadastro", response_model=Token, status_code=status.HTTP_201_CREATED)
-def cadastro(dados: PessoaCadastro, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def cadastro(request: Request, dados: PessoaCadastro, db: Session = Depends(get_db)):
     if db.query(Pessoa).filter(Pessoa.email == dados.email).first():
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "E-mail já cadastrado")
 
@@ -35,8 +39,10 @@ def me(pessoa: Pessoa = Depends(get_current_pessoa), db: Session = Depends(get_d
     )
 
 
+# Limita tentativas por IP para conter brute-force / credential stuffing.
 @router.post("/login", response_model=Token)
-def login(dados: PessoaLogin, db: Session = Depends(get_db)):
+@limiter.limit("10/minute")
+def login(request: Request, dados: PessoaLogin, db: Session = Depends(get_db)):
     pessoa = db.query(Pessoa).filter(Pessoa.email == dados.email).first()
     if pessoa is None or not verificar_senha(dados.senha, pessoa.senha):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "E-mail ou senha inválidos")

@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.database import get_db
 from app.deps import get_current_locador, get_current_pessoa
 from app.models import (
@@ -107,7 +108,7 @@ def listar_imoveis(
 @router.get("/imoveis/{idanuncio}", response_model=AnuncioOut)
 def detalhe_imovel(idanuncio: int, db: Session = Depends(get_db)):
     anuncio = db.get(Anuncio, idanuncio)
-    if anuncio is None:
+    if anuncio is None or anuncio.status != "A":
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Imóvel não encontrado")
     return _anuncio_to_out(anuncio)
 
@@ -127,6 +128,15 @@ def criar_imovel(
             raise HTTPException(
                 status.HTTP_404_NOT_FOUND, f"Comodidade {idcomodidade} não encontrada"
             )
+
+    # As URLs de foto devem vir do Storage do Supabase (não aceitar URLs
+    # arbitrárias). Só valida se o prefixo estiver configurado.
+    if settings.foto_url_prefixo:
+        for foto in dados.fotos:
+            if not foto.url.startswith(settings.foto_url_prefixo):
+                raise HTTPException(
+                    status.HTTP_400_BAD_REQUEST, "URL de foto não permitida"
+                )
 
     # Encontra ou cria a cidade (por nome + UF) e cria o endereço.
     # Normaliza antes de buscar E criar para não duplicar cidade por espaço/caixa.
