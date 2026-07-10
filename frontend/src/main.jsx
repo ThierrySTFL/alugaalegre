@@ -32,6 +32,11 @@ const App = () => {
   // showAuth: null (fechado) | "landlord" | "client" | "any"
   const [showAuth, setShowAuth] = React.useState(null);
   const [favorites, setFavorites] = React.useState(new Set());
+  // ids com um POST /favoritos em andamento — evita disparar dois toggles
+  // pro mesmo imóvel enquanto o primeiro ainda não respondeu.
+  const [pendingFavorites, setPendingFavorites] = React.useState(new Set());
+  // id que o usuário tentou favoritar sem estar logado; retomado após o login.
+  const [favoriteAfterAuth, setFavoriteAfterAuth] = React.useState(null);
   const [toast, showToast] = useToast();
 
   const [t, setTweak] = window.useTweaks(TWEAK_DEFAULTS);
@@ -66,6 +71,31 @@ const App = () => {
     return () => { ativo = false; };
   }, []);
 
+  // Sincroniza os favoritos com a API sempre que a sessão muda (login,
+  // restauração do token no F5, ou logout — que limpa a lista local).
+  // Se havia um favorito pendente de login, resolve ele aqui também, usando
+  // a MESMA busca (uma única GET /favoritos) — rodar isso num efeito à parte
+  // criaria uma segunda busca concorrente que poderia sobrescrever o toggle
+  // otimista com uma resposta desatualizada.
+  React.useEffect(() => {
+    if (!session) { setFavorites(new Set()); return; }
+    let ativo = true;
+    window.api
+      .listarFavoritos()
+      .then((ids) => {
+        if (!ativo) return;
+        setFavorites(new Set(ids));
+        if (favoriteAfterAuth != null) {
+          const id = favoriteAfterAuth;
+          setFavoriteAfterAuth(null);
+          if (ids.includes(id)) showToast("Esse imóvel já estava nos seus favoritos");
+          else applyFavoriteToggle(id, false);
+        }
+      })
+      .catch(() => {});
+    return () => { ativo = false; };
+  }, [session]);
+
   const navigate = (next) => {
     setView(next);
     window.scrollTo({ top: 0 });
@@ -77,13 +107,44 @@ const App = () => {
     navigate("detail");
   };
 
-  const toggleFavorite = (id) => {
+  const openAuth = (preRole) => setShowAuth(preRole || "any");
+
+  // wasFavorited vem explícito (não do estado) pra não sofrer de closure
+  // desatualizada quando chamado logo após um login (ver efeito acima).
+  const applyFavoriteToggle = async (id, wasFavorited) => {
     setFavorites((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) { next.delete(id); showToast("Removido dos favoritos"); }
-      else { next.add(id); showToast("Adicionado aos favoritos"); }
+      if (wasFavorited) next.delete(id); else next.add(id);
       return next;
     });
+    setPendingFavorites((prev) => new Set(prev).add(id));
+    try {
+      const res = await window.api.toggleFavorito(id);
+      showToast(res.favoritado ? "Adicionado aos favoritos" : "Removido dos favoritos");
+    } catch (err) {
+      setFavorites((prev) => {
+        const next = new Set(prev);
+        if (wasFavorited) next.add(id); else next.delete(id);
+        return next;
+      });
+      showToast(err.message || "Não foi possível atualizar seus favoritos.");
+    } finally {
+      setPendingFavorites((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  };
+
+  const toggleFavorite = (id) => {
+    if (pendingFavorites.has(id)) return; // já tem um toggle em andamento
+    if (!session) {
+      setFavoriteAfterAuth(id);
+      openAuth("any");
+      return;
+    }
+    applyFavoriteToggle(id, favorites.has(id));
   };
 
   const handleContact = (listing) => {
@@ -96,6 +157,10 @@ const App = () => {
     const newSession = { name: info.name, email: info.email, role: info.role };
     setSession(newSession);
     setShowAuth(null);
+    // Havia um favorito pendente de login: o efeito acima resolve ele com a
+    // lista real de favoritos, então não navega nem mostra o toast padrão
+    // (manteria o usuário no imóvel que ele estava tentando favoritar).
+    if (favoriteAfterAuth != null) return;
     if (info.role === "landlord") {
       navigate("dashboard");
       showToast(`Bem-vindo, ${info.name.split(" ")[0]}!`);
@@ -131,7 +196,7 @@ const App = () => {
         view={view}
         navigate={navigate}
         session={session}
-        onAuth={(preRole) => setShowAuth(preRole || "any")}
+        onAuth={openAuth}
         onSignOut={handleSignOut}
       />
 
@@ -142,7 +207,7 @@ const App = () => {
           favorites={favorites}
           toggleFavorite={toggleFavorite}
           session={session}
-          onAuth={(preRole) => setShowAuth(preRole || "any")}
+          onAuth={openAuth}
         />
       )}
       {view === "detail" && currentListing && (
@@ -165,7 +230,7 @@ const App = () => {
       {view === "dashboard" && !session && (
         <div className="container" style={{ padding: "80px 32px", textAlign: "center" }}>
           <p className="muted">Você precisa entrar como locador.</p>
-          <button className="btn" style={{ marginTop: 16 }} onClick={() => setShowAuth("landlord")}>
+          <button className="btn" style={{ marginTop: 16 }} onClick={() => openAuth("landlord")}>
             Entrar como locador
           </button>
         </div>
@@ -188,7 +253,7 @@ const App = () => {
       {showAuth && (
         <AuthModal
           preRole={showAuth === "any" ? null : showAuth}
-          onClose={() => setShowAuth(null)}
+          onClose={() => { setShowAuth(null); setFavoriteAfterAuth(null); }}
           onAuth={handleAuth}
         />
       )}

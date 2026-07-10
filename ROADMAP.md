@@ -105,7 +105,7 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
         concluir vai pro painel
 - [X] **Painel**: usar `GET /meus-imoveis` e `GET /meus-contatos`; ligar
       editar/pausar/excluir nos endpoints (hoje "Editar" é um `alert()`)
-- [ ] **Favoritos**: persistir via API (hoje é um `Set` em memória)
+- [X] **Favoritos**: persistir via API (hoje é um `Set` em memória)
 - [ ] Adicionar estados de loading e erro (hoje não existem — nada é
       assíncrono)
 
