@@ -37,7 +37,10 @@ const adaptAnuncio = (a) => ({
 });
 window.adaptAnuncio = adaptAnuncio;
 
-const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
+const Home = ({ navigate, openProperty, favorites, toggleFavorite, session, onAuth }) => {
+  // Já logado como locador → direto pro painel; senão, abre o AuthModal.
+  const irParaLocador = () => (session?.role === "landlord" ? navigate("dashboard") : onAuth("landlord"));
+
   const { CITIES, TYPES } = window.DATA;
   const [query, setQuery] = React.useState("");
   const [city, setCity] = React.useState("");
@@ -112,7 +115,7 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
               </button>
               <button
                 className="btn ghost lg"
-                onClick={() => navigate("landlord-signup")}
+                onClick={irParaLocador}
               >
                 Quero anunciar um imóvel
               </button>
@@ -294,7 +297,7 @@ const Home = ({ navigate, openProperty, favorites, toggleFavorite }) => {
             <p style={{ marginTop: 16, color: "rgba(253,252,249,0.7)", fontSize: 15, maxWidth: 440 }}>
               Cadastro em 3 minutos. Você decide quando ativar ou pausar o anúncio.
             </p>
-            <button className="btn sun" style={{ marginTop: 24 }} onClick={() => navigate("landlord-signup")}>
+            <button className="btn sun" style={{ marginTop: 24 }} onClick={irParaLocador}>
               Anunciar meu imóvel <Icon name="arrow" size={14} />
             </button>
           </div>

@@ -141,6 +141,8 @@ const App = () => {
           openProperty={openProperty}
           favorites={favorites}
           toggleFavorite={toggleFavorite}
+          session={session}
+          onAuth={(preRole) => setShowAuth(preRole || "any")}
         />
       )}
       {view === "detail" && currentListing && (

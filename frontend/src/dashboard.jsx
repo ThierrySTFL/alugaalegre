@@ -67,6 +67,8 @@ const Dashboard = ({ session, navigate, openProperty, showToast }) => {
     try {
       await window.api.excluirImovel(listing.id);
       setListings((prev) => prev.filter((l) => l.id !== listing.id));
+      // O backend também apaga os contatos do anúncio (cascade) — reflete aqui.
+      setContacts((prev) => prev.filter((c) => c.idanuncio !== listing.id));
       showToast?.("Imóvel excluído");
     } catch (err) {
       showToast?.(err.message || "Não foi possível excluir o imóvel.");
