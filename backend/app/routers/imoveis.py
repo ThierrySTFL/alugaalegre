@@ -84,6 +84,7 @@ def listar_imoveis(
     busca: Optional[str] = None,
     limit: int = Query(default=20, ge=1, le=50),
     offset: int = Query(default=0, ge=0),
+    ordem: str = Query(default="recent", pattern="^(recent|price-asc|price-desc|area)$"),
     db: Session = Depends(get_db),
 ):
     query = (
@@ -111,7 +112,18 @@ def listar_imoveis(
     total = query.count()
     response.headers["X-Total-Count"] = str(total)
 
-    anuncios = query.order_by(Anuncio.idanuncio.desc()).offset(offset).limit(limit).all()
+    ordenacoes = {
+        "price-asc": Anuncio.preco.asc(),
+        "price-desc": Anuncio.preco.desc(),
+        "area": Anuncio.area.desc(),
+        "recent": Anuncio.idanuncio.desc(),
+    }
+    anuncios = (
+        query.order_by(ordenacoes[ordem], Anuncio.idanuncio.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
     return [_anuncio_to_out(a) for a in anuncios]
 
 

@@ -17,6 +17,19 @@ import "./auth.jsx";
 const { Home, Detail, Dashboard, AddProperty, AuthModal, ContactModal,
         ReportModal, Nav, Footer, useToast } = window;
 
+const setListingParam = (id, { replace = false } = {}) => {
+  const url = new URL(window.location.href);
+  if (id) url.searchParams.set("imovel", id);
+  else url.searchParams.delete("imovel");
+  window.history[replace ? "replaceState" : "pushState"]({}, "", url);
+};
+
+const listingUrl = (id) => {
+  const url = new URL(window.location.href);
+  url.searchParams.set("imovel", id);
+  return url.toString();
+};
+
 const App = () => {
   const [view, setView] = React.useState("home"); // home / detail / dashboard / add
   const [currentListing, setCurrentListing] = React.useState(null);
@@ -36,6 +49,37 @@ const App = () => {
   // id que o usuário tentou favoritar sem estar logado; retomado após o login.
   const [favoriteAfterAuth, setFavoriteAfterAuth] = React.useState(null);
   const [toast, showToast] = useToast();
+
+  // Ao carregar com ?imovel=ID, abre o detalhe diretamente. O popstate mantém
+  // a view sincronizada quando o usuário usa voltar/avançar do navegador.
+  React.useEffect(() => {
+    const abrirImovelDaUrl = (avisarErro = false) => {
+      const id = new URLSearchParams(window.location.search).get("imovel");
+      if (!id) {
+        setCurrentListing(null);
+        setView("home");
+        return;
+      }
+      window.api
+        .detalheImovel(id)
+        .then((anuncio) => {
+          setCurrentListing(window.adaptAnuncio(anuncio));
+          setView("detail");
+          window.scrollTo({ top: 0 });
+        })
+        .catch(() => {
+          setCurrentListing(null);
+          setView("home");
+          setListingParam(null, { replace: true });
+          if (avisarErro) showToast("Anúncio não encontrado ou indisponível.");
+        });
+    };
+
+    abrirImovelDaUrl(true);
+    const onPopState = () => abrirImovelDaUrl(false);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
   // Ao carregar: se há token guardado, reconstrói a sessão via GET /auth/me.
   React.useEffect(() => {
@@ -94,6 +138,10 @@ const App = () => {
   }, [session]);
 
   const navigate = (next) => {
+    if (next === "home") {
+      setCurrentListing(null);
+      setListingParam(null);
+    }
     setView(next);
     window.scrollTo({ top: 0 });
   };
@@ -101,6 +149,7 @@ const App = () => {
 
   const openProperty = (listing) => {
     setCurrentListing(listing);
+    setListingParam(listing.id);
     navigate("detail");
   };
 
@@ -157,6 +206,26 @@ const App = () => {
       return;
     }
     setReportListing(listing);
+  };
+
+  const handleShare = async (listing) => {
+    const url = listingUrl(listing.id);
+    const data = {
+      title: listing.title,
+      text: `${listing.title} no AlugaAlegre`,
+      url,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(data);
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      showToast("Link do anúncio copiado.");
+    } catch (err) {
+      if (err?.name === "AbortError") return;
+      showToast("Não foi possível compartilhar o anúncio.");
+    }
   };
 
   // Callback unificado de auth — role: "landlord" | "client"
@@ -224,6 +293,7 @@ const App = () => {
           navigate={navigate}
           onContact={handleContact}
           onReport={handleReport}
+          onShare={handleShare}
           favorited={favorites.has(currentListing.id)}
           favoritePending={pendingFavorites.has(currentListing.id)}
           toggleFavorite={toggleFavorite}

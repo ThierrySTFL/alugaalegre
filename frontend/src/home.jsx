@@ -76,7 +76,8 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
     preco_max: maxPrice < 5000 ? maxPrice : undefined,
     limit: PAGE_SIZE,
     offset,
-  }), [query, city, type, bedrooms, maxPrice]);
+    ordem: sortBy,
+  }), [query, city, type, bedrooms, maxPrice, sortBy]);
 
   const buscar = React.useCallback(async () => {
     const meuId = ++reqId.current;
@@ -116,12 +117,12 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
     }
   }, [montarFiltros, loadingMore, listings.length, totalListings]);
 
-  // Busca com debounce sempre que um filtro ou a ordenação muda. A ordenação
-  // reseta para a primeira página, conforme o fluxo de paginação incremental.
+  // Busca com debounce sempre que um filtro ou a ordenação muda. A API ordena
+  // antes de paginar, então trocar ordenação reseta para a primeira página.
   React.useEffect(() => {
     const id = setTimeout(buscar, 350);
     return () => clearTimeout(id);
-  }, [buscar, sortBy]);
+  }, [buscar]);
 
   // Carrega uma vez os destaques do hero. Se falhar, os 3 slots ficam
   // como placeholder decorativo, igual antes.
@@ -163,19 +164,6 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
   };
 
   const activeFilters = [city, type, bedrooms, maxPrice < 5000 ? "preço" : ""].filter(Boolean).length;
-
-  // Ordenação é só de exibição (client-side) — a API não devolve em nenhuma
-  // ordem garantida, então "recente" usa o id (maior = criado depois) como
-  // aproximação, já que dataanuncio é só uma data (sem hora) e empataria.
-  const sortedListings = React.useMemo(() => {
-    const arr = [...listings];
-    switch (sortBy) {
-      case "price-asc": return arr.sort((a, b) => a.price - b.price);
-      case "price-desc": return arr.sort((a, b) => b.price - a.price);
-      case "area": return arr.sort((a, b) => b.area - a.area);
-      default: return arr.sort((a, b) => b.id - a.id);
-    }
-  }, [listings, sortBy]);
 
   return (
     <main>
@@ -358,7 +346,7 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
         ) : (
           <>
             <div className="grid-results">
-              {sortedListings.map((l) => (
+              {listings.map((l) => (
                 <ListingCard
                   key={l.id}
                   listing={l}

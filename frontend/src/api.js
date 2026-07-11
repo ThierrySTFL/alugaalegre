@@ -89,7 +89,7 @@ const api = {
     request("POST", "/usuarios/completar-perfil", { body: { cpf, telefone }, auth: true }),
 
   // --- imóveis (público) ---
-  // filtros: { cidade, tipo, quartos, preco_min, preco_max, busca, limit, offset }
+  // filtros: { cidade, tipo, quartos, preco_min, preco_max, busca, limit, offset, ordem }
   listarImoveis: (filtros = {}) => request("GET", "/imoveis", { query: filtros }),
   listarImoveisPaginado: async (filtros = {}) => {
     const { data, headers } = await request("GET", "/imoveis", {

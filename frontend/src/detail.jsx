@@ -117,7 +117,7 @@ const LandlordReviews = ({ landlord, session }) => {
   );
 };
 
-const Detail = ({ listing, navigate, onContact, onReport, favorited, favoritePending = false, toggleFavorite, session }) => {
+const Detail = ({ listing, navigate, onContact, onReport, onShare, favorited, favoritePending = false, toggleFavorite, session }) => {
   const [activePhoto, setActivePhoto] = React.useState(0);
   const [galleryOpen, setGalleryOpen] = React.useState(false);
 
@@ -153,7 +153,7 @@ const Detail = ({ listing, navigate, onContact, onReport, favorited, favoritePen
             )}
             {favoritePending ? "Atualizando…" : favorited ? "Favoritado" : "Favoritar"}
           </button>
-          <button className="btn ghost sm">
+          <button className="btn ghost sm" onClick={() => onShare(listing)}>
             <Icon name="upload" size={14} /> Compartilhar
           </button>
         </div>
