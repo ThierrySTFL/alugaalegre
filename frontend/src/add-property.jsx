@@ -14,11 +14,16 @@ const formatCEP = (v) => {
   return `${d.slice(0, 5)}-${d.slice(5)}`;
 };
 
+// Locais atendidos. Hoje só Alegre/ES; para expandir, adicione a UF em UFS
+// e as cidades correspondentes em CIDADES_POR_UF.
+const UFS = ["ES"];
+const CIDADES_POR_UF = { ES: ["Alegre"] };
+
 const AddProperty = ({ navigate }) => {
-  const { CITIES } = window.DATA; // cidades ainda do mock (região de Alegre)
   const [step, setStep] = React.useState(1);
   const [data, setData] = React.useState({
     idtipo: null,
+    uf: UFS.length === 1 ? UFS[0] : "",
     city: "",
     neighborhood: "",
     rua: "",
@@ -74,6 +79,7 @@ const AddProperty = ({ navigate }) => {
     const e = {};
     if (step === 1) {
       if (!data.idtipo) e.type = "Escolha o tipo do imóvel.";
+      if (!data.uf) e.uf = "Escolha a UF.";
       if (!data.city) e.city = "Escolha uma cidade.";
       if (!data.neighborhood.trim()) e.neighborhood = "Informe o bairro.";
       if (!data.rua.trim()) e.rua = "Informe a rua.";
@@ -105,6 +111,7 @@ const AddProperty = ({ navigate }) => {
     };
 
     if (!data.idtipo) { e.type = "Escolha o tipo do imóvel."; mark(1); }
+    if (!data.uf) { e.uf = "Escolha a UF."; mark(1); }
     if (!data.city) { e.city = "Escolha uma cidade."; mark(1); }
     if (!data.neighborhood.trim()) { e.neighborhood = "Informe o bairro."; mark(1); }
     if (!data.rua.trim()) { e.rua = "Informe a rua."; mark(1); }
@@ -191,7 +198,6 @@ const AddProperty = ({ navigate }) => {
     setPublishing(true);
     setPubError(null);
     try {
-      const [cidade, uf] = data.city.split(",").map((s) => s.trim());
       const fotos = data.photos
         .filter((p) => p.url && !p.error)
         .map((p, i) => ({ url: p.url, capa: i === 0 }));
@@ -210,8 +216,8 @@ const AddProperty = ({ navigate }) => {
           numero: parseInt(data.numero, 10),
           bairro: data.neighborhood,
           cep: data.cep,
-          cidade,
-          uf: uf || "",
+          cidade: data.city,
+          uf: data.uf,
         },
         fotos,
       });
@@ -272,12 +278,20 @@ const AddProperty = ({ navigate }) => {
             {errors.type && <span className="err">{errors.type}</span>}
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 28 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "0.7fr 1.3fr 1fr", gap: 16, marginTop: 28 }}>
+            <div className="field">
+              <label>UF<span className="req">*</span></label>
+              <select className={"select" + (errors.uf ? " invalid" : "")} value={data.uf} onChange={(e) => setData((d) => ({ ...d, uf: e.target.value, city: "" }))}>
+                <option value="">—</option>
+                {UFS.map((u) => <option key={u}>{u}</option>)}
+              </select>
+              {errors.uf && <span className="err">{errors.uf}</span>}
+            </div>
             <div className="field">
               <label>Cidade<span className="req">*</span></label>
-              <select className={"select" + (errors.city ? " invalid" : "")} value={data.city} onChange={(e) => update("city", e.target.value)}>
+              <select className={"select" + (errors.city ? " invalid" : "")} value={data.city} onChange={(e) => update("city", e.target.value)} disabled={!data.uf}>
                 <option value="">Selecione…</option>
-                {CITIES.map((c) => <option key={c}>{c}</option>)}
+                {(CIDADES_POR_UF[data.uf] || []).map((c) => <option key={c}>{c}</option>)}
               </select>
               {errors.city && <span className="err">{errors.city}</span>}
             </div>
@@ -335,12 +349,12 @@ const AddProperty = ({ navigate }) => {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
               <div className="field">
                 <label>Aluguel mensal (R$)<span className="req">*</span></label>
-                <input className={"input" + (errors.price ? " invalid" : "")} type="number" value={data.price} onChange={(e) => update("price", e.target.value)} placeholder="1400" />
+                <input className={"input" + (errors.price ? " invalid" : "")} type="number" min="0" step="1" value={data.price} onChange={(e) => update("price", e.target.value)} placeholder="1400" />
                 {errors.price && <span className="err">{errors.price}</span>}
               </div>
               <div className="field">
                 <label>Área (m²)<span className="req">*</span></label>
-                <input className={"input" + (errors.area ? " invalid" : "")} type="number" value={data.area} onChange={(e) => update("area", e.target.value)} placeholder="64" />
+                <input className={"input" + (errors.area ? " invalid" : "")} type="number" min="0" step="1" value={data.area} onChange={(e) => update("area", e.target.value)} placeholder="64" />
                 {errors.area && <span className="err">{errors.area}</span>}
               </div>
             </div>
@@ -468,7 +482,7 @@ const AddProperty = ({ navigate }) => {
             <span className="pill sun">{tipoNome(data.idtipo)}</span>
             <h3 style={{ fontSize: 22, marginTop: 10, lineHeight: 1.15 }}>{data.title}</h3>
             <p className="muted" style={{ fontSize: 13, marginTop: 6 }}>
-              <Icon name="pin" size={12} /> {data.rua}, {data.numero} · {data.neighborhood}, {data.city}
+              <Icon name="pin" size={12} /> {data.rua}, {data.numero} · {data.neighborhood}, {data.city}{data.uf ? `, ${data.uf}` : ""}
             </p>
             <div style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600, marginTop: 14 }}>
               {fmtBRL(parseInt(data.price || 0, 10))}<span style={{ fontSize: 13, fontWeight: 400, color: "var(--ink-3)" }}>/mês</span>

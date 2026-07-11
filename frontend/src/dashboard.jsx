@@ -371,12 +371,12 @@ const EditListingModal = ({ listing, onClose, onSaved }) => {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div className="field">
             <label>Aluguel mensal (R$)<span className="req">*</span></label>
-            <input className={"input" + (errors.preco ? " invalid" : "")} type="number" value={preco} onChange={(e) => setPreco(e.target.value)} />
+            <input className={"input" + (errors.preco ? " invalid" : "")} type="number" min="0" step="1" value={preco} onChange={(e) => setPreco(e.target.value)} />
             {errors.preco && <span className="err">{errors.preco}</span>}
           </div>
           <div className="field">
             <label>Área (m²)<span className="req">*</span></label>
-            <input className={"input" + (errors.area ? " invalid" : "")} type="number" value={area} onChange={(e) => setArea(e.target.value)} />
+            <input className={"input" + (errors.area ? " invalid" : "")} type="number" min="0" step="1" value={area} onChange={(e) => setArea(e.target.value)} />
             {errors.area && <span className="err">{errors.area}</span>}
           </div>
         </div>
