@@ -54,41 +54,69 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
   const [showFilters, setShowFilters] = React.useState(false);
 
   const [listings, setListings] = React.useState([]);
+  const [totalListings, setTotalListings] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
+  const [loadingMore, setLoadingMore] = React.useState(false);
   const [error, setError] = React.useState(null);
   const [sortBy, setSortBy] = React.useState("recent");
+  const PAGE_SIZE = 20;
   // Ignora respostas obsoletas (filtro trocado antes de a anterior chegar).
   const reqId = React.useRef(0);
+
+  const montarFiltros = React.useCallback((offset = 0) => ({
+    busca: query.trim() || undefined,
+    cidade: city ? city.split(",")[0].trim() : undefined,
+    tipo: type || undefined,
+    quartos: bedrooms ? parseInt(bedrooms, 10) : undefined,
+    preco_max: maxPrice < 5000 ? maxPrice : undefined,
+    limit: PAGE_SIZE,
+    offset,
+  }), [query, city, type, bedrooms, maxPrice]);
 
   const buscar = React.useCallback(async () => {
     const meuId = ++reqId.current;
     setLoading(true);
+    setLoadingMore(false);
     setError(null);
     try {
-      const filtros = {
-        busca: query.trim() || undefined,
-        cidade: city ? city.split(",")[0].trim() : undefined,
-        tipo: type || undefined,
-        quartos: bedrooms ? parseInt(bedrooms, 10) : undefined,
-        preco_max: maxPrice < 5000 ? maxPrice : undefined,
-      };
-      const data = await window.api.listarImoveis(filtros);
+      const { imoveis, total } = await window.api.listarImoveisPaginado(montarFiltros(0));
       if (meuId !== reqId.current) return; // chegou uma busca mais nova
-      setListings(data.map(adaptAnuncio));
+      setListings(imoveis.map(adaptAnuncio));
+      setTotalListings(total);
     } catch (err) {
       if (meuId !== reqId.current) return;
       setError(err.message || "Não foi possível carregar os imóveis.");
       setListings([]);
+      setTotalListings(0);
     } finally {
       if (meuId === reqId.current) setLoading(false);
     }
-  }, [query, city, type, bedrooms, maxPrice]);
+  }, [montarFiltros]);
 
-  // Busca com debounce sempre que um filtro muda (os filtros viram query params).
+  const carregarMais = React.useCallback(async () => {
+    if (loadingMore || listings.length >= totalListings) return;
+    const meuId = reqId.current;
+    setLoadingMore(true);
+    setError(null);
+    try {
+      const { imoveis, total } = await window.api.listarImoveisPaginado(montarFiltros(listings.length));
+      if (meuId !== reqId.current) return;
+      setListings((atuais) => [...atuais, ...imoveis.map(adaptAnuncio)]);
+      setTotalListings(total);
+    } catch (err) {
+      if (meuId !== reqId.current) return;
+      setError(err.message || "Não foi possível carregar mais imóveis.");
+    } finally {
+      if (meuId === reqId.current) setLoadingMore(false);
+    }
+  }, [montarFiltros, loadingMore, listings.length, totalListings]);
+
+  // Busca com debounce sempre que um filtro ou a ordenação muda. A ordenação
+  // reseta para a primeira página, conforme o fluxo de paginação incremental.
   React.useEffect(() => {
     const id = setTimeout(buscar, 350);
     return () => clearTimeout(id);
-  }, [buscar]);
+  }, [buscar, sortBy]);
 
   // Carrega uma vez as opções dos selects. Se falhar, os filtros ficam vazios
   // mas a busca (texto/preço/quartos) continua funcionando.
@@ -134,7 +162,9 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
               Encontre uma casa que <em style={{ fontFamily: "var(--font-display)", fontStyle: "italic", color: "var(--accent)" }}>cabe</em> em você.
             </h1>
             <p style={{ marginTop: 20, fontSize: 17, color: "var(--ink-2)", maxWidth: 480, lineHeight: 1.5 }}>
-              Imóveis anunciados por seus donos em Alegre e região do Caparaó. Sem taxas escondidas, sem fiador, sem corretor.
+              Imóveis anunciados por seus donos em Alegre, ES.
+              <br />
+              Sem taxas escondidas, sem intermediação, sem corretor.
             </p>
 
             {/* CTAs */}
@@ -199,7 +229,7 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
             <Icon name="search" size={16} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--ink-3)" }} />
             <input
               className="input"
-              placeholder="Busque por bairro, cidade ou nome do imóvel…"
+              placeholder="Busque por nome, descrição ou característica do imóvel…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               style={{ border: "none", paddingLeft: 38, background: "transparent", height: 48, boxShadow: "none" }}
@@ -265,10 +295,12 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
                 ? "Buscando imóveis…"
                 : error
                   ? "Não foi possível carregar"
-                  : `${listings.length} ${listings.length === 1 ? "imóvel disponível" : "imóveis disponíveis"}`}
+                  : `${totalListings} ${totalListings === 1 ? "imóvel disponível" : "imóveis disponíveis"}`}
             </h2>
             <p className="muted" style={{ fontSize: 13, marginTop: 4 }}>
-              Atualizado em tempo real · Anunciados pelos próprios donos
+              {listings.length > 0
+                ? `Mostrando ${listings.length} de ${totalListings} · Anunciados pelos próprios donos`
+                : "Atualizado em tempo real · Anunciados pelos próprios donos"}
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -298,17 +330,33 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
             <button className="btn ghost sm" style={{ marginTop: 16 }} onClick={clearAll}>Limpar filtros</button>
           </div>
         ) : (
-          <div className="grid-results">
-            {sortedListings.map((l) => (
-              <ListingCard
-                key={l.id}
-                listing={l}
-                onOpen={openProperty}
-                onFavorite={toggleFavorite}
-                favorited={favorites.has(l.id)}
-                favoritePending={pendingFavorites.has(l.id)} />
-            ))}
-          </div>
+          <>
+            <div className="grid-results">
+              {sortedListings.map((l) => (
+                <ListingCard
+                  key={l.id}
+                  listing={l}
+                  onOpen={openProperty}
+                  onFavorite={toggleFavorite}
+                  favorited={favorites.has(l.id)}
+                  favoritePending={pendingFavorites.has(l.id)} />
+              ))}
+            </div>
+            {listings.length < totalListings && (
+              <div style={{ display: "flex", justifyContent: "center", marginTop: 40 }}>
+                <button className="btn ghost" onClick={carregarMais} disabled={loadingMore}>
+                  {loadingMore ? (
+                    <>
+                      <span className="spinner" style={{ width: 16, height: 16, color: "var(--accent)" }} />
+                      Carregando…
+                    </>
+                  ) : (
+                    "Carregar mais"
+                  )}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </section>
 
@@ -324,7 +372,7 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
               Anuncie seu imóvel<br />e fale direto com o locatário.
             </h2>
             <p style={{ marginTop: 16, color: "rgba(253,252,249,0.7)", fontSize: 15, maxWidth: 440 }}>
-              Cadastro em 3 minutos. Você decide quando ativar ou pausar o anúncio.
+              Cadastro em minutos, você decide quando ativar ou pausar o anúncio.
             </p>
             <button className="btn sun" style={{ marginTop: 24 }} onClick={irParaLocador}>
               Anunciar meu imóvel <Icon name="arrow" size={14} />

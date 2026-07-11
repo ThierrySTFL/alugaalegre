@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
@@ -73,12 +73,15 @@ def _anuncio_to_out(anuncio: Anuncio) -> AnuncioOut:
 
 @router.get("/imoveis", response_model=List[AnuncioOut])
 def listar_imoveis(
+    response: Response,
     cidade: Optional[str] = None,
     tipo: Optional[str] = None,
     quartos: Optional[int] = None,
     preco_min: Optional[float] = None,
     preco_max: Optional[float] = None,
     busca: Optional[str] = None,
+    limit: int = Query(default=20, ge=1, le=50),
+    offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ):
     query = (
@@ -103,7 +106,11 @@ def listar_imoveis(
         termo = f"%{busca}%"
         query = query.filter(or_(Anuncio.titulo.ilike(termo), Anuncio.descricao.ilike(termo)))
 
-    return [_anuncio_to_out(a) for a in query.all()]
+    total = query.count()
+    response.headers["X-Total-Count"] = str(total)
+
+    anuncios = query.order_by(Anuncio.idanuncio.desc()).offset(offset).limit(limit).all()
+    return [_anuncio_to_out(a) for a in anuncios]
 
 
 @router.get("/imoveis/{idanuncio}", response_model=AnuncioOut)

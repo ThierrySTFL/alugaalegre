@@ -289,7 +289,7 @@ const ContactModal = ({ listing, onClose, onUnlock, session }) => {
                 <Avatar name={listing.landlord.name} size={44} />
                 <div>
                   <div style={{ fontWeight: 500, fontSize: 15 }}>{listing.landlord.name}</div>
-                  <div className="muted" style={{ fontSize: 12 }}>Locador · responde em ~3h</div>
+                  <div className="muted" style={{ fontSize: 12 }}>Locador</div>
                 </div>
               </div>
               <div style={{ height: 1, background: "var(--line)", margin: "14px 0" }} />

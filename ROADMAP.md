@@ -165,10 +165,10 @@ avaliação → admin (o painel consome as denúncias, então vem por último).
 
 ### 6.1 Paginação na listagem · ~meio dia
 
-- [ ] **Back**: `GET /imoveis` aceita `limit` (default 20, máx 50) e `offset`;
+- [X] **Back**: `GET /imoveis` aceita `limit` (default 20, máx 50) e `offset`;
       resposta continua sendo a lista, com o total em um header
       `X-Total-Count` (não quebra o contrato atual do front)
-- [ ] **Front**: home busca a primeira página e mostra botão **"Carregar
+- [X] **Front**: home busca a primeira página e mostra botão **"Carregar
       mais"** que anexa a próxima (`offset += limit`); some quando
       `listings.length >= X-Total-Count`. Trocar filtro/ordenação reseta pro
       início. Sem números de página — é o mínimo que cumpre o papel

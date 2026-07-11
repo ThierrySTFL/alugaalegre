@@ -23,7 +23,7 @@ function getToken() {
 
 // Wrapper único de fetch: monta a URL, anexa o token, serializa o corpo e
 // normaliza os erros do FastAPI ({ "detail": "..." }) em Error(message).
-async function request(method, path, { body, auth = false, query } = {}) {
+async function request(method, path, { body, auth = false, query, includeHeaders = false } = {}) {
   const url = new URL(API_URL + path);
   if (query) {
     for (const [chave, valor] of Object.entries(query)) {
@@ -66,6 +66,7 @@ async function request(method, path, { body, auth = false, query } = {}) {
     erro.status = res.status;
     throw erro;
   }
+  if (includeHeaders) return { data, headers: res.headers };
   return data;
 }
 
@@ -88,8 +89,18 @@ const api = {
     request("POST", "/usuarios/completar-perfil", { body: { cpf, telefone }, auth: true }),
 
   // --- imóveis (público) ---
-  // filtros: { cidade, tipo, quartos, preco_min, preco_max, busca }
+  // filtros: { cidade, tipo, quartos, preco_min, preco_max, busca, limit, offset }
   listarImoveis: (filtros = {}) => request("GET", "/imoveis", { query: filtros }),
+  listarImoveisPaginado: async (filtros = {}) => {
+    const { data, headers } = await request("GET", "/imoveis", {
+      query: filtros,
+      includeHeaders: true,
+    });
+    return {
+      imoveis: data,
+      total: Number(headers.get("X-Total-Count") || data.length),
+    };
+  },
   detalheImovel: (id) => request("GET", `/imoveis/${id}`),
 
   // --- referências (para o form de publicar) ---
