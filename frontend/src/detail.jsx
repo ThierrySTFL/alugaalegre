@@ -25,8 +25,6 @@ const Detail = ({ listing, navigate, onContact, favorited, favoritePending = fal
             <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
               <Icon name="pin" size={14} /> {listing.neighborhood}, {listing.city}
             </span>
-            <span>·</span>
-            <span className="mono">ID {String(listing.id).toUpperCase()}</span>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>

@@ -95,6 +95,7 @@ const api = {
   // --- referências (para o form de publicar) ---
   getTipos: () => request("GET", "/tipos"), // [{ idtipo, nome }]
   getComodidades: () => request("GET", "/comodidades"), // [{ idcomodidade, nome }]
+  getCidades: () => request("GET", "/cidades"), // [{ nome, uf }] — só cidades com anúncio ativo
 
   // --- imóveis (autenticado) ---
   // dados: {

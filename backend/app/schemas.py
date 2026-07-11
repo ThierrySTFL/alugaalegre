@@ -64,6 +64,13 @@ class ComodidadeOut(BaseModel):
     nome: str
 
 
+class CidadeOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    nome: str
+    uf: str
+
+
 # ---------- Imóvel (anúncio) ----------
 
 class EnderecoOut(BaseModel):

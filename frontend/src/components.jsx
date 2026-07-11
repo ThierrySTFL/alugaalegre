@@ -76,7 +76,6 @@ const Nav = ({ view, navigate, session, onAuth, onSignOut }) => {
           >
             Sou locador
           </a>
-          <a onClick={() => alert("Página institucional — fora do escopo deste protótipo.")}>Como funciona</a>
         </nav>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {session ? (
@@ -113,37 +112,14 @@ const Avatar = ({ name, size = 32 }) => {
 // Footer
 const Footer = () => (
   <footer style={{ marginTop: 80, borderTop: "1px solid var(--line)", padding: "40px 0 32px" }}>
-    <div className="container" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 24, flexWrap: "wrap" }}>
-      <div>
-        <Logo />
-        <p className="muted" style={{ fontSize: 13, marginTop: 12, maxWidth: 360 }}>
-          Aluguel direto entre locador e locatário, sem intermediários.
-        </p>
-      </div>
-      <div style={{ display: "flex", gap: 40, rowGap: 24, fontSize: 13, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <span className="mono muted">Locador</span>
-          <a className="link">Como anunciar</a>
-          <a className="link">Preços por imóvel</a>
-          <a className="link">Dicas de cadastro</a>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <span className="mono muted">Locatário</span>
-          <a className="link">Buscar imóveis</a>
-          <a className="link">Como visitar</a>
-          <a className="link">Segurança</a>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <span className="mono muted">AlugaAlegre</span>
-          <a className="link">Sobre</a>
-          <a className="link">Contato</a>
-          <a className="link">Termos</a>
-        </div>
-      </div>
-    </div>
-    <div className="container" style={{ marginTop: 40, paddingTop: 20, borderTop: "1px solid var(--line)", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8, fontSize: 12, color: "var(--ink-3)" }}>
-      <span>© 2026 AlugaAlegre — todos os direitos reservados.</span>
-      <span className="mono">v0.1 · protótipo</span>
+    <div className="container" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12, textAlign: "center" }}>
+      <Logo />
+      <p className="muted" style={{ fontSize: 13, maxWidth: 360 }}>
+        Aluguel direto entre locador e locatário, sem intermediários.
+      </p>
+      <span style={{ fontSize: 12, color: "var(--ink-3)" }}>
+        © 2026 AlugaAlegre — todos os direitos reservados.
+      </span>
     </div>
   </footer>
 );

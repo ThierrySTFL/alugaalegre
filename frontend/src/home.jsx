@@ -43,7 +43,9 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
   // Já logado como locador → direto pro painel; senão, abre o AuthModal.
   const irParaLocador = () => (session?.role === "landlord" ? navigate("dashboard") : onAuth("landlord"));
 
-  const { CITIES, TYPES } = window.DATA;
+  // Opções dos filtros vindas da API: cidades com anúncio ativo e tipos.
+  const [cities, setCities] = React.useState([]);
+  const [types, setTypes] = React.useState([]);
   const [query, setQuery] = React.useState("");
   const [city, setCity] = React.useState("");
   const [type, setType] = React.useState("");
@@ -87,6 +89,17 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
     const id = setTimeout(buscar, 350);
     return () => clearTimeout(id);
   }, [buscar]);
+
+  // Carrega uma vez as opções dos selects. Se falhar, os filtros ficam vazios
+  // mas a busca (texto/preço/quartos) continua funcionando.
+  React.useEffect(() => {
+    Promise.all([window.api.getCidades(), window.api.getTipos()])
+      .then(([cidades, tipos]) => {
+        setCities(cidades.map((c) => `${c.nome}, ${c.uf}`));
+        setTypes(tipos.map((t) => t.nome));
+      })
+      .catch(() => {});
+  }, []);
 
   const clearAll = () => {
     setQuery(""); setCity(""); setType(""); setBedrooms(""); setMaxPrice(5000);
@@ -212,14 +225,14 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
               <label>Cidade</label>
               <select className="select" value={city} onChange={(e) => setCity(e.target.value)}>
                 <option value="">Todas</option>
-                {CITIES.map((c) => <option key={c}>{c}</option>)}
+                {cities.map((c) => <option key={c}>{c}</option>)}
               </select>
             </div>
             <div className="field">
               <label>Tipo</label>
               <select className="select" value={type} onChange={(e) => setType(e.target.value)}>
                 <option value="">Qualquer</option>
-                {TYPES.map((t) => <option key={t}>{t}</option>)}
+                {types.map((t) => <option key={t}>{t}</option>)}
               </select>
             </div>
             <div className="field">
