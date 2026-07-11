@@ -1,0 +1,25 @@
+# Blueprint do Render — cria o serviço do backend ao conectar o repo.
+# Dashboard → New → Blueprint → apontar para este repositório.
+services:
+  - type: web
+    name: alugaalegre-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.6
+      # Segredos: preencher no dashboard (sync: false = o Render pede o valor).
+      - key: DATABASE_URL
+        sync: false
+      # Chave do JWT — o Render gera um valor aleatório forte no primeiro deploy.
+      - key: SECRET_KEY
+        generateValue: true
+      # Domínio do front na Vercel (preencher depois do deploy do front).
+      - key: CORS_ORIGINS
+        sync: false
+      - key: FOTO_URL_PREFIXO
+        value: https://aqpzaeptrhtafpdkzsuy.supabase.co/storage/v1/object/public/fotos-imoveis/
