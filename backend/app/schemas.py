@@ -196,6 +196,35 @@ class ContatoListOut(BaseModel):
     datacontato: datetime
 
 
+# ---------- Avaliações ----------
+
+class AvaliacaoCreate(BaseModel):
+    estrelas: int = Field(ge=1, le=5)
+    # max_length casa com a coluna avaliacao.descricao (VARCHAR(200)).
+    descricao: Optional[str] = Field(default=None, max_length=200)
+
+    @field_validator("descricao")
+    @classmethod
+    def descricao_vazia_vira_none(cls, descricao: Optional[str]) -> Optional[str]:
+        if descricao is not None and not descricao.strip():
+            return None
+        return descricao
+
+
+class AvaliacaoOut(BaseModel):
+    idavaliacao: int
+    estrelas: int
+    descricao: Optional[str] = None
+    cliente_nome: str
+    dataavaliacao: date
+
+
+class AvaliacaoElegivelOut(BaseModel):
+    # O front usa para esconder o botão "Avaliar"; o POST revalida de qualquer forma.
+    elegivel: bool
+    motivo: Optional[str] = None
+
+
 # ---------- Denúncias ----------
 
 class DenunciaCreate(BaseModel):

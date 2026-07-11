@@ -186,19 +186,19 @@ avaliação → admin (o painel consome as denúncias, então vem por último).
 
 ### 6.3 Avaliação de locador · ~1 dia
 
-- [ ] **Back**: `GET /locadores/{id}/avaliacoes` (público: estrelas,
+- [X] **Back**: `GET /locadores/{id}/avaliacoes` (público: estrelas,
       descrição, nome do cliente, data) e `POST /locadores/{id}/avaliacoes`
       (auth) com `estrelas` 1–5 e `descricao` opcional (≤200)
-- [ ] **Regras mínimas**: uma avaliação por cliente/locador (sem edição);
+- [X] **Regras mínimas**: uma avaliação por cliente/locador (sem edição);
       só avalia quem já pediu contato de algum anúncio do locador (1 query
       em `contato` — barra avaliação de quem nunca interagiu); locador não
       avalia a si mesmo
-- [ ] **Back**: ao criar, recalcular `locador.mediaavaliacao` (média das
+- [X] **Back**: ao criar, recalcular `locador.mediaavaliacao` (média das
       estrelas) — o campo denormalizado já existe e o detalhe já o exibe
-- [ ] **Front**: no detalhe do imóvel, bloco "Avaliações do locador"
+- [X] **Front**: no detalhe do imóvel, bloco "Avaliações do locador"
       (média + lista) e botão "Avaliar" (modal: 5 estrelas clicáveis +
       texto). Esconder o botão se não elegível (a API responde 403 de
-      qualquer forma)
+      qualquer forma — o front consulta `GET .../avaliacoes/elegivel`)
 
 ### 6.4 Painel do administrador · ~1-1,5 dia
 

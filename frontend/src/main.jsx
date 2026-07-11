@@ -227,6 +227,7 @@ const App = () => {
           favorited={favorites.has(currentListing.id)}
           favoritePending={pendingFavorites.has(currentListing.id)}
           toggleFavorite={toggleFavorite}
+          session={session}
         />
       )}
       {view === "dashboard" && session?.role === "landlord" && (

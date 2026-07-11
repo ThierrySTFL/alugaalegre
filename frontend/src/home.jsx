@@ -26,6 +26,7 @@ const adaptAnuncio = (a) => ({
   // URL da capa: a foto marcada como capa ("S") ou, na falta, a primeira.
   coverUrl: ((a.fotos || []).find((f) => f.capa === "S") || (a.fotos || [])[0])?.url || null,
   landlord: {
+    id: a.locador.idlocador,
     name: a.locador.nome,
     phone: formatTel(a.locador.telefone),
     since: String(a.locador.desde || "").slice(0, 4),

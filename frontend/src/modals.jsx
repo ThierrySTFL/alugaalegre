@@ -412,6 +412,115 @@ const ReportModal = ({ listing, onClose }) => {
   );
 };
 
+// ─── RatingModal ──────────────────────────────────────────────────────────────
+// Avaliação de locador (POST /locadores/{id}/avaliacoes). Só abre para quem é
+// elegível — o botão "Avaliar" nem aparece nos outros casos, e a API revalida.
+
+const RatingModal = ({ landlord, onClose, onCreated }) => {
+  const [estrelas, setEstrelas] = React.useState(0);
+  const [hover, setHover] = React.useState(0);
+  const [descricao, setDescricao] = React.useState("");
+  const [enviada, setEnviada] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+
+  const enviar = async () => {
+    if (!estrelas) {
+      setError("Escolha de 1 a 5 estrelas.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const nova = await window.api.criarAvaliacao(landlord.id, estrelas, descricao.trim());
+      onCreated?.(nova);
+      setEnviada(true);
+    } catch (err) {
+      setError(err.message || "Não foi possível enviar a avaliação.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (enviada) {
+    return (
+      <ModalShell onClose={onClose}>
+        <div style={{ padding: 32, textAlign: "center" }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: "50%",
+            background: "var(--accent-soft)", color: "var(--accent)",
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Icon name="check" size={24} stroke={2} />
+          </div>
+          <h2 style={{ fontSize: 22, marginTop: 14, letterSpacing: "-0.02em" }}>Avaliação enviada</h2>
+          <p className="muted" style={{ fontSize: 13, marginTop: 8, lineHeight: 1.5 }}>
+            Obrigado! Sua avaliação já aparece no perfil de {landlord.name.split(" ")[0]}.
+          </p>
+          <button className="btn" style={{ marginTop: 20 }} onClick={onClose}>Fechar</button>
+        </div>
+      </ModalShell>
+    );
+  }
+
+  return (
+    <ModalShell onClose={onClose}>
+      <div style={{ padding: "28px 28px 24px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <span className="mono" style={{ color: "var(--accent)" }}>● Avaliar locador</span>
+          <button className="btn ghost icon sm" onClick={onClose}><Icon name="close" size={14} /></button>
+        </div>
+        <h2 style={{ fontSize: 22, lineHeight: 1.15, letterSpacing: "-0.02em", marginTop: 10 }}>
+          Como foi sua experiência<br />com {landlord.name.split(" ")[0]}?
+        </h2>
+
+        <div style={{ display: "flex", gap: 6, marginTop: 18, justifyContent: "center" }}
+             onMouseLeave={() => setHover(0)}>
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              onClick={() => { setEstrelas(n); setError(null); }}
+              onMouseEnter={() => setHover(n)}
+              aria-label={`${n} ${n === 1 ? "estrela" : "estrelas"}`}
+              style={{
+                background: "none", border: "none", padding: 4, cursor: "pointer",
+                color: n <= (hover || estrelas) ? "var(--sun)" : "var(--line-2)",
+              }}
+            >
+              <Icon name={n <= (hover || estrelas) ? "star-fill" : "star"} size={30} />
+            </button>
+          ))}
+        </div>
+
+        <div className="field" style={{ marginTop: 16 }}>
+          <label>Comentário <span className="muted" style={{ fontWeight: 400 }}>(opcional)</span></label>
+          <textarea
+            className="textarea"
+            value={descricao}
+            maxLength={200}
+            onChange={(e) => setDescricao(e.target.value)}
+            placeholder="Ex.: atendimento rápido, imóvel como no anúncio…"
+          />
+          <span className="muted" style={{ fontSize: 11, textAlign: "right" }}>
+            {descricao.length}/200
+          </span>
+        </div>
+
+        {error && <div className="err" style={{ fontSize: 13, marginTop: 10 }}>{error}</div>}
+
+        <button
+          className="btn accent lg"
+          style={{ width: "100%", marginTop: 18 }}
+          onClick={enviar}
+          disabled={loading}
+        >
+          {loading ? <><span className="spinner" /> Enviando…</> : "Enviar avaliação"}
+        </button>
+      </div>
+    </ModalShell>
+  );
+};
+
 // ─── AuthModal ────────────────────────────────────────────────────────────────
 // Login/cadastro por e-mail + senha. Locador novo completa o perfil (CPF + tel).
 // O papel (cliente/locador) vem do backend no login (is_locador) e da escolha
@@ -581,6 +690,7 @@ const AuthModal = ({ onClose, onAuth, preRole = null }) => {
 
 window.ContactModal  = ContactModal;
 window.ReportModal   = ReportModal;
+window.RatingModal   = RatingModal;
 window.AuthModal     = AuthModal;
 window.ModalShell    = ModalShell;
 window.validateEmail = validateEmail;

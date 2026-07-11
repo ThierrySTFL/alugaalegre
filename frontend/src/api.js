@@ -123,6 +123,18 @@ const api = {
   denunciarImovel: (id, descricao) =>
     request("POST", `/imoveis/${id}/denuncia`, { body: { descricao }, auth: true }),
 
+  // --- avaliações de locador ---
+  // Lista pública: [{ idavaliacao, estrelas, descricao, cliente_nome, dataavaliacao }]
+  getAvaliacoes: (idlocador) => request("GET", `/locadores/${idlocador}/avaliacoes`),
+  // { elegivel, motivo } — o front usa para esconder o botão "Avaliar".
+  podeAvaliar: (idlocador) =>
+    request("GET", `/locadores/${idlocador}/avaliacoes/elegivel`, { auth: true }),
+  criarAvaliacao: (idlocador, estrelas, descricao) =>
+    request("POST", `/locadores/${idlocador}/avaliacoes`, {
+      body: { estrelas, descricao: descricao || undefined },
+      auth: true,
+    }),
+
   // --- painel do locador ---
   meusImoveis: () => request("GET", "/meus-imoveis", { auth: true }),
   meusContatos: () => request("GET", "/meus-contatos", { auth: true }),

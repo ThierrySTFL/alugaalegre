@@ -1,7 +1,123 @@
 import React from "react";
 // Property detail page with photo gallery
 
-const Detail = ({ listing, navigate, onContact, onReport, favorited, favoritePending = false, toggleFavorite }) => {
+// Linha de estrelas somente-leitura (a interativa vive no RatingModal).
+const Stars = ({ value, size = 13 }) => (
+  <span style={{ display: "inline-flex", gap: 2, color: "var(--sun)" }}>
+    {[1, 2, 3, 4, 5].map((n) => (
+      <Icon key={n} name={n <= value ? "star-fill" : "star"} size={size} />
+    ))}
+  </span>
+);
+
+const formatDataAvaliacao = (d) =>
+  new Date(`${d}T00:00:00`).toLocaleDateString("pt-BR");
+
+// Bloco "Avaliações do locador": lista pública + botão "Avaliar", que só
+// aparece para quem é elegível (já pediu contato, não é o próprio locador e
+// ainda não avaliou) — a API revalida tudo no POST de qualquer forma.
+const LandlordReviews = ({ landlord, session }) => {
+  const [avaliacoes, setAvaliacoes] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [erro, setErro] = React.useState(null);
+  const [elegivel, setElegivel] = React.useState(false);
+  const [showRate, setShowRate] = React.useState(false);
+
+  React.useEffect(() => {
+    let ativo = true;
+    setLoading(true);
+    setErro(null);
+    window.api.getAvaliacoes(landlord.id)
+      .then((lista) => { if (ativo) setAvaliacoes(lista); })
+      .catch(() => { if (ativo) setErro("Não foi possível carregar as avaliações."); })
+      .finally(() => { if (ativo) setLoading(false); });
+    return () => { ativo = false; };
+  }, [landlord.id]);
+
+  // Elegibilidade é melhor-esforço: se a chamada falhar, o botão só não aparece.
+  React.useEffect(() => {
+    if (!session) { setElegivel(false); return; }
+    let ativo = true;
+    window.api.podeAvaliar(landlord.id)
+      .then((r) => { if (ativo) setElegivel(r.elegivel); })
+      .catch(() => {});
+    return () => { ativo = false; };
+  }, [landlord.id, session]);
+
+  const media = avaliacoes.length
+    ? avaliacoes.reduce((soma, a) => soma + a.estrelas, 0) / avaliacoes.length
+    : null;
+
+  return (
+    <div style={{ marginTop: 40 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+        <h2 style={{ fontSize: 20 }}>Avaliações do locador</h2>
+        {elegivel && (
+          <button className="btn ghost sm" onClick={() => setShowRate(true)}>
+            <Icon name="star" size={14} /> Avaliar
+          </button>
+        )}
+      </div>
+
+      {loading ? (
+        <p className="muted" style={{ fontSize: 14, marginTop: 16, display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="spinner" style={{ width: 14, height: 14, color: "var(--accent)" }} />
+          Carregando avaliações…
+        </p>
+      ) : erro ? (
+        <p className="muted" style={{ fontSize: 14, marginTop: 16 }}>{erro}</p>
+      ) : avaliacoes.length === 0 ? (
+        <p className="muted" style={{ fontSize: 14, marginTop: 16 }}>
+          {landlord.name.split(" ")[0]} ainda não recebeu avaliações.
+        </p>
+      ) : (
+        <>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16 }}>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: 28, fontWeight: 600 }}>
+              {media.toFixed(1).replace(".", ",")}
+            </span>
+            <Stars value={Math.round(media)} size={15} />
+            <span className="muted" style={{ fontSize: 13 }}>
+              {avaliacoes.length} {avaliacoes.length === 1 ? "avaliação" : "avaliações"}
+            </span>
+          </div>
+          <div style={{ marginTop: 8 }}>
+            {avaliacoes.map((a) => (
+              <div key={a.idavaliacao} style={{ padding: "16px 0", borderTop: "1px solid var(--line)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <Avatar name={a.cliente_nome} size={30} />
+                    <span style={{ fontSize: 14, fontWeight: 500 }}>{a.cliente_nome}</span>
+                  </div>
+                  <span className="muted" style={{ fontSize: 12 }}>{formatDataAvaliacao(a.dataavaliacao)}</span>
+                </div>
+                <div style={{ marginTop: 8 }}><Stars value={a.estrelas} /></div>
+                {a.descricao && (
+                  <p style={{ fontSize: 14, color: "var(--ink-2)", marginTop: 8, lineHeight: 1.55, textWrap: "pretty" }}>
+                    {a.descricao}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {showRate && (
+        <RatingModal
+          landlord={landlord}
+          onClose={() => setShowRate(false)}
+          onCreated={(nova) => {
+            setAvaliacoes((atuais) => [nova, ...atuais]);
+            setElegivel(false);
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+const Detail = ({ listing, navigate, onContact, onReport, favorited, favoritePending = false, toggleFavorite, session }) => {
   const [activePhoto, setActivePhoto] = React.useState(0);
   const [galleryOpen, setGalleryOpen] = React.useState(false);
 
@@ -126,6 +242,8 @@ const Detail = ({ listing, navigate, onContact, onReport, favorited, favoritePen
             </div>
           </div>
 
+          {/* Avaliações do locador */}
+          <LandlordReviews landlord={listing.landlord} session={session} />
 
         </div>
 
