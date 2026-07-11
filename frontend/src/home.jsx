@@ -53,6 +53,10 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
   const [maxPrice, setMaxPrice] = React.useState(5000);
   const [showFilters, setShowFilters] = React.useState(false);
 
+  // Destaques do hero: os 3 anúncios mais recentes. Slots sem anúncio ficam
+  // como placeholder e passam a exibir o imóvel assim que ele for publicado.
+  const [heroListings, setHeroListings] = React.useState([]);
+
   const [listings, setListings] = React.useState([]);
   const [totalListings, setTotalListings] = React.useState(0);
   const [loading, setLoading] = React.useState(true);
@@ -118,6 +122,14 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
     return () => clearTimeout(id);
   }, [buscar, sortBy]);
 
+  // Carrega uma vez os destaques do hero. Se falhar, os 3 slots ficam
+  // como placeholder decorativo, igual antes.
+  React.useEffect(() => {
+    window.api.listarImoveis({ limit: 3 })
+      .then((anuncios) => setHeroListings(anuncios.map(adaptAnuncio)))
+      .catch(() => {});
+  }, []);
+
   // Carrega uma vez as opções dos selects. Se falhar, os filtros ficam vazios
   // mas a busca (texto/preço/quartos) continua funcionando.
   React.useEffect(() => {
@@ -135,6 +147,19 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
 
   const irParaResultados = () =>
     document.getElementById("results")?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  // Um slot do hero: mostra o anúncio real (clicável) quando existe; senão,
+  // fica o placeholder listrado esperando o próximo imóvel publicado.
+  const heroSlot = (i, aspect) => {
+    const l = heroListings[i];
+    return l ? (
+      <Photo key={l.id} src={l.coverUrl} alt={l.title} aspect={aspect} onClick={() => openProperty(l)}>
+        <span className="lbl">{l.type} — {l.neighborhood}, {l.city}</span>
+      </Photo>
+    ) : (
+      <Photo key={`vago-${i}`} label="Seu imóvel aqui" aspect={aspect} />
+    );
+  };
 
   const activeFilters = [city, type, bedrooms, maxPrice < 5000 ? "preço" : ""].filter(Boolean).length;
 
@@ -212,10 +237,10 @@ const Home = ({ navigate, openProperty, favorites, pendingFavorites, toggleFavor
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <Photo label="Apartamento — Centro, Alegre" aspect="5 / 4" />
+            {heroSlot(0, "5 / 4")}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              <Photo label="Casa — Guaçuí" aspect="1 / 1" />
-              <Photo label="Kitnet — Vila do Sul, Alegre" aspect="1 / 1" />
+              {heroSlot(1, "1 / 1")}
+              {heroSlot(2, "1 / 1")}
             </div>
           </div>
         </div>

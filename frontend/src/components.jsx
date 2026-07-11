@@ -52,9 +52,9 @@ const Logo = ({ onClick }) => (
 
 // Photo: mostra a imagem real quando há `src`; senão, cai no placeholder
 // listrado com legenda (usado por dados mock e fotos decorativas).
-const Photo = ({ label, src, alt, height = 220, aspect, style = {}, children }) => (
-  <div className="photo"
-    style={{ height: aspect ? "auto" : height, aspectRatio: aspect, ...style }}>
+const Photo = ({ label, src, alt, height = 220, aspect, style = {}, onClick, children }) => (
+  <div className="photo" onClick={onClick}
+    style={{ height: aspect ? "auto" : height, aspectRatio: aspect, cursor: onClick ? "pointer" : undefined, ...style }}>
     {src
       ? <img src={src} alt={alt || label || ""} loading="lazy" />
       : label && <span className="lbl">{label}</span>}
