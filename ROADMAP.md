@@ -118,41 +118,41 @@ Front (React) ──dados──▶ FastAPI ──SQLAlchemy──▶ Postgres (S
 - [X] Ligar o "Ordenar por" da home (o `<select>` existe mas não tem `onChange`)
 - [X] Remover o painel de Tweaks do build de produção (é ferramenta de design)
 
-## Etapa 5 — Deploy · ~1 dia
+## Etapa 5 — Deploy · ~1 dia ✅ (2026-07-11)
 
-- [ ] **Preparar o banco de produção** (um banco novo/limpo não vem pronto — a
-      config abaixo não está no schema e precisa ser refeita à mão; ver Notas):
-  - [ ] Aplicar o `db/schema.sql` no banco novo (cria as 15 tabelas)
-  - [ ] Semear os dados de referência: `tipo` (5: Apartamento, Casa, Kitnet,
-        Sobrado, Sítio) e `comodidade` (10: Wi-Fi, Garagem, Mobiliado, Quintal,
-        Aceita pets, Ar-condicionado, Área de serviço, Portaria, Churrasqueira,
-        Próximo à UFES). **Sem isso, publicar imóvel falha** (o form fica sem opções)
-  - [ ] Criar o bucket `fotos-imoveis` **e** aplicar a policy de Storage de
-        `INSERT` para `anon, authenticated` no bucket (a leitura já é pública via
-        bucket public). **Sem a policy o upload de foto dá `403` (RLS)**
-- [ ] Backend no **Railway** ou **Render** (free tier, deploy por git push)
-- [ ] Front no **Vercel** ou **Netlify** (`npm run build` + pasta `dist`)
-- [ ] CORS: o `CORSMiddleware` já foi ligado na Etapa 3; aqui só adicionar
-      o domínio de produção do front (via env `CORS_ORIGINS`) e **validar
-      que está realmente funcionando** — abrir o front publicado, disparar
-      uma chamada real e confirmar no DevTools (aba Network) que não há erro
-      de CORS e que o header `access-control-allow-origin` volta correto
-- [ ] **Variáveis de ambiente** — nada de segredo hardcoded no código nem
-      commitado (`.env` está no `.gitignore`). Onde cada coisa fica:
-  - [ ] **Na Vercel** (front) — só as `VITE_*`, que são **públicas** (entram
+**No ar:** front em https://alugaalegre.vercel.app · API em
+https://alugaalegre-api.onrender.com
+
+- [X] **Banco de produção**: decidido **reusar o projeto Supabase de dev**
+      (schema, seeds, bucket e policy já aplicados e validados; linhas de
+      teste removidas). O passo-a-passo de um banco novo segue abaixo como
+      referência, com os seeds versionados em `db/seed_referencia.sql`:
+  - [X] ~~Aplicar o `db/schema.sql` no banco novo~~ (já aplicado)
+  - [X] ~~Semear referência~~ → versionado em `db/seed_referencia.sql`
+  - [X] ~~Bucket + policy de INSERT~~ (já criados à mão no projeto atual)
+- [X] Backend no **Render** (free tier, blueprint `render.yaml`; spin-down
+      após inatividade — primeira request pode demorar ~30s)
+- [X] Front no **Vercel** (projeto `alugaalegre`, deploy via CLI; env vars
+      `VITE_*` no dashboard)
+- [X] CORS validado em produção: `GET /imoveis` com `Origin` do domínio da
+      Vercel devolve 200 + `access-control-allow-origin` correto
+- [X] **Variáveis de ambiente** — nada de segredo hardcoded no código nem
+      commitado (`.env` está no `.gitignore`). Onde cada coisa ficou:
+  - [X] **Na Vercel** (front) — só as `VITE_*`, que são **públicas** (entram
         no bundle; qualquer um lê no navegador). Portanto, aqui **só** o que
         pode ser público:
         - `VITE_API_URL` — URL do backend em produção
         - `VITE_SUPABASE_URL`
         - `VITE_SUPABASE_ANON_KEY` — a *anon key* é pública por design
           (protegida por RLS no bucket). **Nunca** pôr a `service_role` key aqui.
-  - [ ] **No host do backend** (Railway/Render) — segredos, que **jamais**
-        podem ir pra Vercel/pro front:
-        - `SECRET_KEY` — chave do JWT; se vazar, tokens ficam forjáveis
+  - [X] **No Render** (backend) — segredos, que **jamais** podem ir pra
+        Vercel/pro front:
+        - `SECRET_KEY` — chave do JWT, gerada pelo próprio Render
+          (`generateValue` no blueprint); se vazar, tokens ficam forjáveis
         - `DATABASE_URL` — contém a senha do Postgres
         - `CORS_ORIGINS` — domínio do front em produção
-        - `FOTO_URL_PREFIXO` — prefixo do bucket do Storage (opcional; se
-          definido, só aceita URLs de foto vindas de lá)
+        - `FOTO_URL_PREFIXO` — prefixo do bucket do Storage (só aceita URLs
+          de foto vindas de lá)
 
 ---
 
