@@ -32,6 +32,7 @@ const Icon = ({ name, size = 16, stroke = 1.5, ...rest }) => {
     upload: <><path d="M12 16V4M6 10l6-6 6 6" /><path d="M4 16v3a1 1 0 001 1h14a1 1 0 001-1v-3" /></>,
     more: <><circle cx="6" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" /><circle cx="18" cy="12" r="1.4" fill="currentColor" stroke="none" /></>,
     star: <path d="M12 4l2.5 5.2 5.5.8-4 4 1 5.5-5-2.7-5 2.7 1-5.5-4-4 5.5-.8L12 4z" />,
+    flag: <path d="M6 21V4m0 1h12l-3 4 3 4H6" />,
     sparkle: <path d="M12 4v5m0 6v5M4 12h5m6 0h5M7 7l3 3m4 4l3 3M17 7l-3 3m-4 4l-3 3" />,
   };
   return (

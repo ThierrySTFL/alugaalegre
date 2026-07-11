@@ -29,6 +29,8 @@ from app.schemas import (
     AnuncioUpdate,
     ContatoListOut,
     ContatoOut,
+    DenunciaCreate,
+    DenunciaOut,
     EnderecoOut,
     FotoOut,
     LocadorPublicOut,
@@ -282,6 +284,48 @@ def contatar_imovel(
     db.commit()
 
     return ContatoOut(whatsapp=str(anuncio.locador.telefone))
+
+
+# Rate limit por IP contra spam; a unicidade por pessoa/anúncio segue o mesmo
+# padrão do dedup de contato: repetir a denúncia devolve a existente, sem duplicar.
+@router.post(
+    "/imoveis/{idanuncio}/denuncia",
+    response_model=DenunciaOut,
+    status_code=status.HTTP_201_CREATED,
+)
+@limiter.limit("5/minute")
+def denunciar_imovel(
+    request: Request,
+    idanuncio: int,
+    dados: DenunciaCreate,
+    pessoa: Pessoa = Depends(get_current_pessoa),
+    db: Session = Depends(get_db),
+):
+    anuncio = db.get(Anuncio, idanuncio)
+    if anuncio is None or anuncio.status != "A":
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Imóvel não encontrado")
+
+    denuncia = (
+        db.query(Denuncia)
+        .filter(Denuncia.idpessoa == pessoa.idpessoa, Denuncia.idanuncio == idanuncio)
+        .first()
+    )
+    if denuncia is None:
+        denuncia = Denuncia(
+            idpessoa=pessoa.idpessoa,
+            idanuncio=idanuncio,
+            descricao=dados.descricao,
+        )
+        db.add(denuncia)
+        db.commit()
+        db.refresh(denuncia)
+
+    return DenunciaOut(
+        iddenuncia=denuncia.iddenuncia,
+        idanuncio=denuncia.idanuncio,
+        status=denuncia.status,
+        datadenuncia=denuncia.datadenuncia,
+    )
 
 
 @router.get("/meus-imoveis", response_model=List[AnuncioOut])

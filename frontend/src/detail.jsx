@@ -1,7 +1,7 @@
 import React from "react";
 // Property detail page with photo gallery
 
-const Detail = ({ listing, navigate, onContact, favorited, favoritePending = false, toggleFavorite }) => {
+const Detail = ({ listing, navigate, onContact, onReport, favorited, favoritePending = false, toggleFavorite }) => {
   const [activePhoto, setActivePhoto] = React.useState(0);
   const [galleryOpen, setGalleryOpen] = React.useState(false);
 
@@ -168,6 +168,15 @@ const Detail = ({ listing, navigate, onContact, favorited, favoritePending = fal
           <div style={{ marginTop: 16, padding: "16px 20px", border: "1px dashed var(--line-2)", borderRadius: "var(--radius)", fontSize: 12, color: "var(--ink-3)", display: "flex", gap: 12, alignItems: "flex-start" }}>
             <Icon name="sparkle" size={16} style={{ color: "var(--accent)", flexShrink: 0, marginTop: 2 }} />
             <span>Imóvel anunciado pelo próprio dono. AlugaAlegre não cobra comissão sobre o aluguel.</span>
+          </div>
+
+          <div style={{ marginTop: 14, textAlign: "center" }}>
+            <a
+              onClick={() => onReport(listing)}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ink-3)", cursor: "pointer" }}
+            >
+              <Icon name="flag" size={13} /> Denunciar anúncio
+            </a>
           </div>
         </aside>
       </section>

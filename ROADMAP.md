@@ -175,13 +175,13 @@ avaliação → admin (o painel consome as denúncias, então vem por último).
 
 ### 6.2 Denúncia de anúncio · ~meio dia
 
-- [ ] **Back**: `POST /imoveis/{id}/denuncia` (auth, qualquer logado) com
+- [X] **Back**: `POST /imoveis/{id}/denuncia` (auth, qualquer logado) com
       `descricao` obrigatória (≤200, coluna é VARCHAR(200)); status nasce
       `"A"` (aberta, default do schema). Uma denúncia por pessoa/anúncio
       (mesmo padrão do dedup de contato) e rate limit `5/minute`
-- [ ] **Front**: link discreto "Denunciar anúncio" na página de detalhe →
+- [X] **Front**: link discreto "Denunciar anúncio" na página de detalhe →
       modal com textarea e confirmação. Logado; senão abre o AuthModal
-- [ ] O tratamento da denúncia é só no painel admin (6.4) — o denunciante
+- [X] O tratamento da denúncia é só no painel admin (6.4) — o denunciante
       não acompanha status (fora do escopo do básico)
 
 ### 6.3 Avaliação de locador · ~1 dia

@@ -119,6 +119,9 @@ const api = {
   excluirImovel: (id) => request("DELETE", `/imoveis/${id}`, { auth: true }),
   // Registra o interesse e devolve { whatsapp } do locador.
   contatarImovel: (id) => request("POST", `/imoveis/${id}/contato`, { auth: true }),
+  // Denuncia o anúncio; repetir para o mesmo anúncio devolve a denúncia existente.
+  denunciarImovel: (id, descricao) =>
+    request("POST", `/imoveis/${id}/denuncia`, { body: { descricao }, auth: true }),
 
   // --- painel do locador ---
   meusImoveis: () => request("GET", "/meus-imoveis", { auth: true }),

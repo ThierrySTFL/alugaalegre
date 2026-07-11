@@ -318,6 +318,100 @@ const ContactModal = ({ listing, onClose, onUnlock, session }) => {
   );
 };
 
+// ─── ReportModal ──────────────────────────────────────────────────────────────
+// Denúncia de anúncio (POST /imoveis/{id}/denuncia). Só abre logado — o gate
+// de login fica no App, que abre o AuthModal antes deste modal.
+
+const ReportModal = ({ listing, onClose }) => {
+  const [descricao, setDescricao] = React.useState("");
+  const [enviada, setEnviada] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+
+  const enviar = async () => {
+    if (!descricao.trim()) {
+      setError("Descreva o motivo da denúncia.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      await window.api.denunciarImovel(listing.id, descricao.trim());
+      setEnviada(true);
+    } catch (err) {
+      setError(err.message || "Não foi possível enviar a denúncia.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (enviada) {
+    return (
+      <ModalShell onClose={onClose}>
+        <div style={{ padding: 32, textAlign: "center" }}>
+          <div style={{
+            width: 52, height: 52, borderRadius: "50%",
+            background: "var(--accent-soft)", color: "var(--accent)",
+            display: "inline-flex", alignItems: "center", justifyContent: "center",
+          }}>
+            <Icon name="check" size={24} stroke={2} />
+          </div>
+          <h2 style={{ fontSize: 22, marginTop: 14, letterSpacing: "-0.02em" }}>Denúncia enviada</h2>
+          <p className="muted" style={{ fontSize: 13, marginTop: 8, lineHeight: 1.5 }}>
+            Nossa equipe vai analisar o anúncio. Obrigado por ajudar a manter o
+            AlugaAlegre seguro.
+          </p>
+          <button className="btn" style={{ marginTop: 20 }} onClick={onClose}>Fechar</button>
+        </div>
+      </ModalShell>
+    );
+  }
+
+  return (
+    <ModalShell onClose={onClose}>
+      <div style={{ padding: "28px 28px 24px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <span className="mono" style={{ color: "var(--accent)" }}>● Denunciar anúncio</span>
+          <button className="btn ghost icon sm" onClick={onClose}><Icon name="close" size={14} /></button>
+        </div>
+        <h2 style={{ fontSize: 22, lineHeight: 1.15, letterSpacing: "-0.02em", marginTop: 10 }}>
+          Algo errado com este anúncio?
+        </h2>
+        <p className="muted" style={{ fontSize: 13, marginTop: 8 }}>
+          Conte o que você encontrou em “{listing.title}”. A denúncia é anônima
+          para o locador.
+        </p>
+
+        <div className="field" style={{ marginTop: 18 }}>
+          <label>Motivo<span className="req">*</span></label>
+          <textarea
+            className={"textarea" + (error && !descricao.trim() ? " invalid" : "")}
+            value={descricao}
+            maxLength={200}
+            onChange={(e) => setDescricao(e.target.value)}
+            placeholder="Ex.: fotos não correspondem ao imóvel, anúncio duplicado, suspeita de golpe…"
+            autoFocus
+          />
+          <span className="muted" style={{ fontSize: 11, textAlign: "right" }}>
+            {descricao.length}/200
+          </span>
+        </div>
+
+        {error && <div className="err" style={{ fontSize: 13, marginTop: 10 }}>{error}</div>}
+
+        <button
+          className="btn accent lg"
+          style={{ width: "100%", marginTop: 18 }}
+          onClick={enviar}
+          disabled={loading}
+        >
+          {loading ? <><span className="spinner" /> Enviando…</> : "Enviar denúncia"}
+        </button>
+      </div>
+    </ModalShell>
+  );
+};
+
 // ─── AuthModal ────────────────────────────────────────────────────────────────
 // Login/cadastro por e-mail + senha. Locador novo completa o perfil (CPF + tel).
 // O papel (cliente/locador) vem do backend no login (is_locador) e da escolha
@@ -486,6 +580,7 @@ const AuthModal = ({ onClose, onAuth, preRole = null }) => {
 };
 
 window.ContactModal  = ContactModal;
+window.ReportModal   = ReportModal;
 window.AuthModal     = AuthModal;
 window.ModalShell    = ModalShell;
 window.validateEmail = validateEmail;

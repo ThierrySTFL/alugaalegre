@@ -196,6 +196,20 @@ class ContatoListOut(BaseModel):
     datacontato: datetime
 
 
+# ---------- Denúncias ----------
+
+class DenunciaCreate(BaseModel):
+    # max_length casa com a coluna denuncia.descricao (VARCHAR(200)).
+    descricao: str = Field(min_length=1, max_length=200)
+
+
+class DenunciaOut(BaseModel):
+    iddenuncia: int
+    idanuncio: int
+    status: str
+    datadenuncia: date
+
+
 # ---------- Favoritos ----------
 
 class FavoritoCreate(BaseModel):

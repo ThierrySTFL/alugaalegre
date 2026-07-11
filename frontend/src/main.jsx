@@ -15,7 +15,7 @@ import "./auth.jsx";
 // App shell — view switcher
 
 const { Home, Detail, Dashboard, AddProperty, AuthModal, ContactModal,
-        Nav, Footer, useToast } = window;
+        ReportModal, Nav, Footer, useToast } = window;
 
 const App = () => {
   const [view, setView] = React.useState("home"); // home / detail / dashboard / add
@@ -25,6 +25,8 @@ const App = () => {
   const [restoring, setRestoring] = React.useState(() => !!window.api.getToken());
   const [showContact, setShowContact] = React.useState(false);
   const [contactListing, setContactListing] = React.useState(null);
+  // Anúncio sendo denunciado (null = modal fechado).
+  const [reportListing, setReportListing] = React.useState(null);
   // showAuth: null (fechado) | "landlord" | "client" | "any"
   const [showAuth, setShowAuth] = React.useState(null);
   const [favorites, setFavorites] = React.useState(new Set());
@@ -147,6 +149,16 @@ const App = () => {
     setShowContact(true);
   };
 
+  // Denúncia exige login: sem sessão, abre o AuthModal — depois de entrar, o
+  // usuário clica no link de novo (sem retomada automática, como nos favoritos).
+  const handleReport = (listing) => {
+    if (!session) {
+      openAuth("any");
+      return;
+    }
+    setReportListing(listing);
+  };
+
   // Callback unificado de auth — role: "landlord" | "client"
   const handleAuth = (info) => {
     const newSession = { name: info.name, email: info.email, role: info.role };
@@ -211,6 +223,7 @@ const App = () => {
           listing={currentListing}
           navigate={navigate}
           onContact={handleContact}
+          onReport={handleReport}
           favorited={favorites.has(currentListing.id)}
           favoritePending={pendingFavorites.has(currentListing.id)}
           toggleFavorite={toggleFavorite}
@@ -245,6 +258,12 @@ const App = () => {
           session={session}
           onClose={() => setShowContact(false)}
           onUnlock={handleUnlock}
+        />
+      )}
+      {reportListing && (
+        <ReportModal
+          listing={reportListing}
+          onClose={() => setReportListing(null)}
         />
       )}
       {showAuth && (
