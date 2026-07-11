@@ -1,14 +1,15 @@
 from datetime import date, datetime
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
 
 
 # ---------- Auth ----------
 
 class PessoaCadastro(BaseModel):
-    nome: str
-    email: str
+    # max_length casa com as colunas do banco (VARCHAR(100)) — 422, não 500.
+    nome: str = Field(min_length=1, max_length=100)
+    email: EmailStr = Field(max_length=100)
     senha: str = Field(min_length=6)
 
     @field_validator("senha")
@@ -20,7 +21,9 @@ class PessoaCadastro(BaseModel):
 
 
 class PessoaLogin(BaseModel):
-    email: str
+    # No login o e-mail fica como str (só com teto de tamanho): contas antigas
+    # podem ter sido criadas antes da validação estrita e ainda precisam entrar.
+    email: str = Field(max_length=100)
     senha: str
 
     @field_validator("senha")
@@ -45,7 +48,17 @@ class PessoaMe(BaseModel):
 
 class CompletarPerfil(BaseModel):
     cpf: str
-    telefone: int
+    # Telefone com DDD (e opcionalmente +55): entre 10 e 13 dígitos.
+    telefone: int = Field(ge=10**9, lt=10**13)
+
+    @field_validator("cpf")
+    @classmethod
+    def cpf_11_digitos(cls, cpf: str) -> str:
+        # Aceita com ou sem máscara; guarda só os dígitos (coluna VARCHAR(11)).
+        digitos = "".join(c for c in cpf if c.isdigit())
+        if len(digitos) != 11:
+            raise ValueError("CPF deve ter 11 dígitos.")
+        return digitos
 
 
 # ---------- Referências (para montar o form de publicar) ----------

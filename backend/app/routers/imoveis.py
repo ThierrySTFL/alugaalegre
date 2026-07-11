@@ -1,12 +1,13 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
 from app.deps import get_current_locador, get_current_pessoa
+from app.limiter import limiter
 from app.models import (
     Anuncio,
     AnuncioComodidade,
@@ -242,8 +243,12 @@ def excluir_imovel(
     db.commit()
 
 
+# Rate limit por IP: o endpoint revela o WhatsApp do locador, então sem limite
+# uma conta logada conseguiria varrer os anúncios colhendo telefones em massa.
 @router.post("/imoveis/{idanuncio}/contato", response_model=ContatoOut)
+@limiter.limit("10/minute")
 def contatar_imovel(
+    request: Request,
     idanuncio: int,
     pessoa: Pessoa = Depends(get_current_pessoa),
     db: Session = Depends(get_db),
@@ -258,7 +263,15 @@ def contatar_imovel(
         db.add(cliente)
         db.flush()
 
-    db.add(Contato(idcliente=cliente.idcliente, idanuncio=anuncio.idanuncio))
+    # Um contato por cliente/anúncio: repetir a ação só devolve o WhatsApp de
+    # novo, sem inflar a lista de contatos do locador.
+    ja_existe = (
+        db.query(Contato)
+        .filter(Contato.idcliente == cliente.idcliente, Contato.idanuncio == anuncio.idanuncio)
+        .first()
+    )
+    if ja_existe is None:
+        db.add(Contato(idcliente=cliente.idcliente, idanuncio=anuncio.idanuncio))
     db.commit()
 
     return ContatoOut(whatsapp=str(anuncio.locador.telefone))
