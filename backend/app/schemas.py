@@ -240,6 +240,20 @@ class DenunciaOut(BaseModel):
     datadenuncia: date
 
 
+class DenunciaAdminOut(BaseModel):
+    iddenuncia: int
+    idanuncio: int
+    anuncio_titulo: Optional[str] = None
+    descricao: str
+    status: str
+    datadenuncia: date
+    denunciante_nome: str
+
+
+class DenunciaResolucaoIn(BaseModel):
+    desfecho: Literal["procedente", "improcedente"]
+
+
 # ---------- Favoritos ----------
 
 class FavoritoCreate(BaseModel):

@@ -5,7 +5,7 @@ from slowapi.errors import RateLimitExceeded
 
 from app.config import settings
 from app.limiter import limiter
-from app.routers import auth, avaliacoes, favoritos, imoveis, referencias, usuarios
+from app.routers import admin, auth, avaliacoes, favoritos, imoveis, referencias, usuarios
 
 app = FastAPI(title="AlugaAlegre API")
 
@@ -28,6 +28,7 @@ app.include_router(imoveis.router)
 app.include_router(avaliacoes.router)
 app.include_router(favoritos.router)
 app.include_router(referencias.router)
+app.include_router(admin.router)
 
 
 @app.get("/health")

@@ -207,7 +207,7 @@ avaliação → admin (o painel consome as denúncias, então vem por último).
       FK pra pessoa. Documentar isso no README
 - [X] **Back**: dependency `get_current_admin` (espelho do
       `get_current_locador`); `GET /auth/me` passa a devolver `is_admin`
-- [ ] **Back**: `GET /admin/denuncias` (abertas primeiro, com título do
+- [X] **Back**: `GET /admin/denuncias` (abertas primeiro, com título do
       anúncio e denunciante) e `PATCH /admin/denuncias/{id}` com dois
       desfechos: **procedente** (fecha a denúncia e pausa o anúncio,
       `status="P"` — reutiliza o fluxo de pausa que já existe) ou
