@@ -212,9 +212,9 @@ avaliação → admin (o painel consome as denúncias, então vem por último).
       desfechos: **procedente** (fecha a denúncia e pausa o anúncio,
       `status="P"` — reutiliza o fluxo de pausa que já existe) ou
       **improcedente** (só fecha). Fechar = `denuncia.status`: `A`→`R`/`I`
-- [ ] **Back**: ao marcar procedente, incrementar `locador.qtddenuncias`
+- [X] **Back**: ao marcar procedente, incrementar `locador.qtddenuncias`
       (campo já existe, hoje sempre 0)
-- [ ] **Front**: view `admin` no SPA (mesmo padrão das outras), visível só
+- [X] **Front**: view `admin` no SPA (mesmo padrão das outras), visível só
       com `is_admin`: tabela de denúncias com descrição, anúncio (link) e
       botões "Procedente" / "Improcedente". Só isso — sem dashboard de
       métricas, sem gestão de usuários

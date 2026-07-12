@@ -82,6 +82,18 @@ const Nav = ({ view, navigate, session, onAuth, onSignOut }) => {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {session ? (
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              {/* Fora de .nav-links de propósito: aquela lista some no mobile
+                  (@media max-width:860px) e o admin ficaria sem nenhum jeito
+                  de chegar no painel — este bloco continua visível sempre. */}
+              {session.isAdmin && (
+                <button
+                  className="btn ghost sm"
+                  onClick={() => navigate("admin")}
+                  style={{ borderColor: view === "admin" ? "var(--ink)" : undefined }}
+                >
+                  Admin
+                </button>
+              )}
               <span className="mono muted nav-role-label">{session.role === "landlord" ? "Locador" : "Cliente"}</span>
               <Avatar name={session.name} />
               <button className="btn ghost sm" onClick={onSignOut}>Sair</button>

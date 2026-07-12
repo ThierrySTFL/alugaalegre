@@ -60,6 +60,7 @@ def resolver_denuncia(
         # Reaproveita o mesmo status "P" que o locador usa para pausar o
         # próprio anúncio — o front já sabe exibir isso.
         denuncia.anuncio.status = "P"
+        denuncia.anuncio.locador.qtddenuncias += 1
 
     db.commit()
     db.refresh(denuncia)

@@ -16,7 +16,7 @@ const formatDataAvaliacao = (d) =>
 // Bloco "Avaliações do locador": lista pública + botão "Avaliar", que só
 // aparece para quem é elegível (já pediu contato, não é o próprio locador e
 // ainda não avaliou) — a API revalida tudo no POST de qualquer forma.
-const LandlordReviews = ({ landlord, session }) => {
+const LandlordReviews = ({ landlord, session, contactVersion }) => {
   const [avaliacoes, setAvaliacoes] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
   const [erro, setErro] = React.useState(null);
@@ -35,6 +35,8 @@ const LandlordReviews = ({ landlord, session }) => {
   }, [landlord.id]);
 
   // Elegibilidade é melhor-esforço: se a chamada falhar, o botão só não aparece.
+  // Reavalia também quando contactVersion muda — é o sinal de que um contato
+  // acabou de ser liberado (o que pode ter acabado de tornar o usuário elegível).
   React.useEffect(() => {
     if (!session) { setElegivel(false); return; }
     let ativo = true;
@@ -42,7 +44,7 @@ const LandlordReviews = ({ landlord, session }) => {
       .then((r) => { if (ativo) setElegivel(r.elegivel); })
       .catch(() => {});
     return () => { ativo = false; };
-  }, [landlord.id, session]);
+  }, [landlord.id, session, contactVersion]);
 
   const media = avaliacoes.length
     ? avaliacoes.reduce((soma, a) => soma + a.estrelas, 0) / avaliacoes.length
@@ -117,7 +119,7 @@ const LandlordReviews = ({ landlord, session }) => {
   );
 };
 
-const Detail = ({ listing, navigate, onContact, onReport, onShare, favorited, favoritePending = false, toggleFavorite, session }) => {
+const Detail = ({ listing, navigate, onContact, onReport, onShare, favorited, favoritePending = false, toggleFavorite, session, contactVersion }) => {
   const [activePhoto, setActivePhoto] = React.useState(0);
   const [galleryOpen, setGalleryOpen] = React.useState(false);
 
@@ -243,7 +245,7 @@ const Detail = ({ listing, navigate, onContact, onReport, onShare, favorited, fa
           </div>
 
           {/* Avaliações do locador */}
-          <LandlordReviews landlord={listing.landlord} session={session} />
+          <LandlordReviews landlord={listing.landlord} session={session} contactVersion={contactVersion} />
 
         </div>
 

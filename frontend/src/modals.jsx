@@ -30,7 +30,7 @@ const ModalShell = ({ children, onClose, size = "" }) => (
 // ─── EmailAuthForm ────────────────────────────────────────────────────────────
 // Form de e-mail + senha (login/cadastro) que fala direto com o backend.
 // Cuida do token (setToken) e devolve ao pai o resultado normalizado:
-//   login:  { mode: "login",  name, email, isLocador }
+//   login:  { mode: "login",  name, email, isLocador, isAdmin }
 //   signup: { mode: "signup", name, email }
 // O pai decide o que fazer com o papel (cliente/locador) e a navegação.
 
@@ -76,6 +76,7 @@ const EmailAuthForm = ({ onResult, defaultMode = "login", roleSlot = null }) => 
           name: eu.nome,
           email: eu.email,
           isLocador: eu.is_locador,
+          isAdmin: eu.is_admin,
         });
       }
     } catch (err) {
@@ -199,15 +200,19 @@ const ContactModal = ({ listing, onClose, onUnlock, session }) => {
   const [loading, setLoading] = React.useState(jaLogado);
   const [error, setError] = React.useState(null);
 
-  // Registra o contato no backend e guarda o WhatsApp devolvido.
+  // Registra o contato no backend e guarda o WhatsApp devolvido. Devolve se
+  // deu certo — quem chama só dispara onUnlock (que reflete no resto do app,
+  // ex.: reavaliar elegibilidade pra avaliar o locador) em caso de sucesso.
   const liberarContato = React.useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await window.api.contatarImovel(listing.id);
       setWhatsapp(res.whatsapp);
+      return true;
     } catch (err) {
       setError(err.message || "Não foi possível liberar o contato.");
+      return false;
     } finally {
       setLoading(false);
     }
@@ -216,16 +221,18 @@ const ContactModal = ({ listing, onClose, onUnlock, session }) => {
   // Já logado: registra o contato assim que o modal abre.
   React.useEffect(() => {
     if (jaLogado) {
-      onUnlock?.({ name: session.name, email: session.email, role: "client" });
-      liberarContato();
+      liberarContato().then((ok) => {
+        if (ok) onUnlock?.({ name: session.name, email: session.email, role: "client" });
+      });
     }
   }, []);
 
   const handleResult = (r) => {
     setClientName(r.name);
-    onUnlock?.({ name: r.name, email: r.email, role: "client" });
     setStep("reveal");
-    liberarContato();
+    liberarContato().then((ok) => {
+      if (ok) onUnlock?.({ name: r.name, email: r.email, role: "client" });
+    });
   };
 
   if (step === "prompt") {
@@ -536,22 +543,22 @@ const AuthModal = ({ onClose, onAuth, preRole = null }) => {
   const [erroGeral, setErroGeral] = React.useState(null);
   const [saving, setSaving] = React.useState(false);
 
-  const finalizar = (name, email, role) => {
-    onAuth({ name, email, role });
+  const finalizar = (name, email, role, isAdmin = false) => {
+    onAuth({ name, email, role, isAdmin });
   };
 
   const handleResult = (r) => {
     if (r.mode === "login") {
-      if (r.isLocador) return finalizar(r.name, r.email, "landlord");
+      if (r.isLocador) return finalizar(r.name, r.email, "landlord", r.isAdmin);
       // Logou mas ainda não é locador. Se veio pelo caminho de locador, completa o perfil.
       if (preRole === "landlord") {
-        setPendente({ name: r.name, email: r.email });
+        setPendente({ name: r.name, email: r.email, isAdmin: r.isAdmin });
         setStep("complete");
         return;
       }
-      return finalizar(r.name, r.email, "client");
+      return finalizar(r.name, r.email, "client", r.isAdmin);
     }
-    // cadastro
+    // cadastro: pessoa nova nunca é admin ainda (isAdmin fica false)
     if (signupRole === "landlord") {
       setPendente({ name: r.name, email: r.email });
       setStep("complete");
@@ -572,7 +579,7 @@ const AuthModal = ({ onClose, onAuth, preRole = null }) => {
     try {
       const telefone = Number(phone.replace(/\D/g, ""));
       await window.api.completarPerfil(CPF.replace(/\D/g, ""), telefone);
-      finalizar(pendente.name, pendente.email, "landlord");
+      finalizar(pendente.name, pendente.email, "landlord", pendente.isAdmin);
     } catch (err) {
       setErroGeral(err.message || "Não foi possível salvar seu perfil.");
     } finally {

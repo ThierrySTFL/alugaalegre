@@ -144,6 +144,13 @@ const api = {
   listarFavoritos: () => request("GET", "/favoritos", { auth: true }),
   toggleFavorito: (idanuncio) =>
     request("POST", "/favoritos", { body: { idanuncio }, auth: true }),
+
+  // --- painel do administrador ---
+  // Lista todas as denúncias (abertas primeiro), com título do anúncio e nome do denunciante.
+  listarDenunciasAdmin: () => request("GET", "/admin/denuncias", { auth: true }),
+  // desfecho: "procedente" (fecha e pausa o anúncio) | "improcedente" (só fecha).
+  resolverDenuncia: (iddenuncia, desfecho) =>
+    request("PATCH", `/admin/denuncias/${iddenuncia}`, { body: { desfecho }, auth: true }),
 };
 
 window.api = api;

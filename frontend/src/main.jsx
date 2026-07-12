@@ -9,12 +9,13 @@ import "./modals.jsx";
 import "./home.jsx";
 import "./detail.jsx";
 import "./dashboard.jsx";
+import "./admin.jsx";
 import "./add-property.jsx";
 import "./auth.jsx";
 
 // App shell — view switcher
 
-const { Home, Detail, Dashboard, AddProperty, AuthModal, ContactModal,
+const { Home, Detail, Dashboard, AdminPanel, AddProperty, AuthModal, ContactModal,
         ReportModal, Nav, Footer, useToast } = window;
 
 const setListingParam = (id, { replace = false } = {}) => {
@@ -48,6 +49,9 @@ const App = () => {
   const [pendingFavorites, setPendingFavorites] = React.useState(new Set());
   // id que o usuário tentou favoritar sem estar logado; retomado após o login.
   const [favoriteAfterAuth, setFavoriteAfterAuth] = React.useState(null);
+  // Incrementado a cada contato liberado — força o Detail a reavaliar se o
+  // usuário já pode avaliar o locador (ver handleUnlock).
+  const [contactVersion, setContactVersion] = React.useState(0);
   const [toast, showToast] = useToast();
 
   // Ao carregar com ?imovel=ID, abre o detalhe diretamente. O popstate mantém
@@ -93,6 +97,7 @@ const App = () => {
             name: eu.nome,
             email: eu.email,
             role: eu.is_locador ? "landlord" : "client",
+            isAdmin: eu.is_admin,
           });
         }
       })
@@ -230,7 +235,7 @@ const App = () => {
 
   // Callback unificado de auth — role: "landlord" | "client"
   const handleAuth = (info) => {
-    const newSession = { name: info.name, email: info.email, role: info.role };
+    const newSession = { name: info.name, email: info.email, role: info.role, isAdmin: !!info.isAdmin };
     setSession(newSession);
     setShowAuth(null);
     // Havia um favorito pendente de login: o efeito acima resolve ele com a
@@ -255,6 +260,10 @@ const App = () => {
   // Quando o ContactModal libera o contato, cria sessão de cliente se ainda não houver
   const handleUnlock = (info) => {
     if (!session) setSession({ name: info.name, email: info.email, role: "client" });
+    // Sinaliza pro Detail reavaliar a elegibilidade de avaliação — sem isso o
+    // botão "Avaliar" só aparece depois de recarregar a página, já que o
+    // contato foi liberado depois do check original de elegibilidade.
+    setContactVersion((v) => v + 1);
     showToast(`Contato liberado!`);
   };
 
@@ -298,6 +307,7 @@ const App = () => {
           favoritePending={pendingFavorites.has(currentListing.id)}
           toggleFavorite={toggleFavorite}
           session={session}
+          contactVersion={contactVersion}
         />
       )}
       {view === "dashboard" && session?.role === "landlord" && (
@@ -318,6 +328,15 @@ const App = () => {
       )}
       {view === "add" && session?.role === "landlord" && (
         <AddProperty navigate={navigate} />
+      )}
+      {view === "admin" && (
+        session?.isAdmin ? (
+          <AdminPanel showToast={showToast} openProperty={openProperty} />
+        ) : (
+          <div className="container" style={{ padding: "80px 32px", textAlign: "center" }}>
+            <p className="muted">Acesso restrito a administradores.</p>
+          </div>
+        )
       )}
 
       <Footer />
