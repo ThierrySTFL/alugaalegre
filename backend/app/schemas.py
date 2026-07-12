@@ -44,6 +44,7 @@ class PessoaMe(BaseModel):
     nome: str
     email: str
     is_locador: bool
+    is_admin: bool
 
 
 class CompletarPerfil(BaseModel):

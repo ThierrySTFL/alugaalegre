@@ -205,7 +205,7 @@ avaliação → admin (o painel consome as denúncias, então vem por último).
 - [X] **Sem UI de gestão de admins**: admin é criado à mão no banco
       (`INSERT INTO administrador VALUES (idpessoa)`) — a tabela é só a
       FK pra pessoa. Documentar isso no README
-- [ ] **Back**: dependency `get_current_admin` (espelho do
+- [X] **Back**: dependency `get_current_admin` (espelho do
       `get_current_locador`); `GET /auth/me` passa a devolver `is_admin`
 - [ ] **Back**: `GET /admin/denuncias` (abertas primeiro, com título do
       anúncio e denunciante) e `PATCH /admin/denuncias/{id}` com dois

@@ -3,7 +3,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Locador, Pessoa
+from app.models import Administrador, Locador, Pessoa
 from app.security import verificar_token
 
 bearer_scheme = HTTPBearer()
@@ -39,3 +39,16 @@ def get_current_locador(
             "Complete seu perfil de locador antes de publicar imóveis",
         )
     return locador
+
+
+def get_current_admin(
+    pessoa: Pessoa = Depends(get_current_pessoa),
+    db: Session = Depends(get_db),
+) -> Administrador:
+    admin = db.get(Administrador, pessoa.idpessoa)
+    if admin is None:
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            "Acesso restrito a administradores",
+        )
+    return admin
