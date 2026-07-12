@@ -170,8 +170,9 @@ class AnuncioCreate(BaseModel):
     quartos: int = Field(ge=0)
     banheiros: int = Field(ge=0)
     area: float = Field(gt=0)
-    comodidade_ids: List[int] = []
-    fotos: List[FotoCreate] = []
+    # Tetos generosos para uso real, mas impedem um POST com milhares de itens.
+    comodidade_ids: List[int] = Field(default_factory=list, max_length=50)
+    fotos: List[FotoCreate] = Field(default_factory=list, max_length=20)
 
 
 class AnuncioUpdate(BaseModel):

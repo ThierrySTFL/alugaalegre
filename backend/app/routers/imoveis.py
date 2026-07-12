@@ -274,8 +274,10 @@ def contatar_imovel(
     pessoa: Pessoa = Depends(get_current_pessoa),
     db: Session = Depends(get_db),
 ):
+    # Mesmo filtro do detalhe: anúncio pausado (inclusive por denúncia
+    # procedente) não pode continuar entregando o telefone do locador por ID.
     anuncio = db.get(Anuncio, idanuncio)
-    if anuncio is None:
+    if anuncio is None or anuncio.status != "A":
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Imóvel não encontrado")
 
     cliente = db.get(Cliente, pessoa.idpessoa)

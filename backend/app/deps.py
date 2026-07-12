@@ -21,7 +21,12 @@ def get_current_pessoa(
     if payload is None or "sub" not in payload:
         raise credenciais_invalidas
 
-    pessoa = db.get(Pessoa, int(payload["sub"]))
+    try:
+        idpessoa = int(payload["sub"])
+    except (TypeError, ValueError):
+        raise credenciais_invalidas
+
+    pessoa = db.get(Pessoa, idpessoa)
     if pessoa is None:
         raise credenciais_invalidas
 

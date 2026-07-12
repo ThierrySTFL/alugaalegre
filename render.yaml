@@ -7,7 +7,11 @@ services:
     rootDir: backend
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # --proxy-headers: atrás do proxy do Render, o IP do cliente vem no
+    # X-Forwarded-For; sem isso o rate limit (por IP) enxerga só o IP do
+    # balanceador e vira um bucket global — qualquer um derruba o /auth/login
+    # de todos. O "*" é seguro aqui: só o proxy do Render alcança o serviço.
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION

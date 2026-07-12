@@ -10,6 +10,11 @@ from app.security import criar_access_token, hash_senha, verificar_senha
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
+# Hash de sacrifício para quando o e-mail não existe: sem ele, o login de
+# e-mail inexistente responderia mais rápido (pula o bcrypt) e o tempo de
+# resposta viraria um oráculo de enumeração de contas.
+_HASH_FALSO = hash_senha("senha-falsa-para-igualar-o-tempo")
+
 
 # Limite baixo por IP: a resposta "e-mail já cadastrado" revela contas
 # existentes, então limitamos o cadastro para dificultar enumeração em massa.
@@ -46,7 +51,8 @@ def me(pessoa: Pessoa = Depends(get_current_pessoa), db: Session = Depends(get_d
 @limiter.limit("10/minute")
 def login(request: Request, dados: PessoaLogin, db: Session = Depends(get_db)):
     pessoa = db.query(Pessoa).filter(Pessoa.email == dados.email).first()
-    if pessoa is None or not verificar_senha(dados.senha, pessoa.senha):
+    senha_ok = verificar_senha(dados.senha, pessoa.senha if pessoa else _HASH_FALSO)
+    if pessoa is None or not senha_ok:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "E-mail ou senha inválidos")
 
     token = criar_access_token({"sub": str(pessoa.idpessoa)})
